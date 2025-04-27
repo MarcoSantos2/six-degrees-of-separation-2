@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react';
-import { Actor, Movie, GameState, GamePath } from '../types';
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useCallback } from 'react';
+import { Actor, Movie, GameState } from '../types';
 
 // Initial state
 const initialState: GameState = {
@@ -19,20 +19,30 @@ type Action =
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
+  const payloadLog = 'payload' in action ? action.payload : undefined;
+  console.log('[GameReducer] Action:', action.type, 'Payload:', payloadLog, 'PrevState:', state);
+  let result: GameState;
   switch (action.type) {
     case 'SET_TARGET_ACTOR':
-      return {
+      // Prevent setting the same actor again
+      if (state.targetActor?.id === action.payload.id) {
+        return state;
+      }
+      console.log('Setting target actor:', action.payload);
+      result = {
         ...state,
         targetActor: action.payload,
       };
+      break;
     case 'START_GAME':
-      return {
+      result = {
         ...state,
         currentPath: [{ actor: action.payload }],
         gameStatus: 'in_progress',
       };
+      break;
     case 'SELECT_MOVIE':
-      return {
+      result = {
         ...state,
         currentPath: state.currentPath.map((item, index) => {
           if (index === state.currentPath.length - 1) {
@@ -41,38 +51,57 @@ const gameReducer = (state: GameState, action: Action): GameState => {
           return item;
         }),
       };
+      break;
     case 'SELECT_ACTOR':
-      // Check win condition
-      if (action.payload.id === state.targetActor?.id) {
-        return {
+      // Create updated path with the new actor
+      const updatedPath = [...state.currentPath, { actor: action.payload }];
+      
+      // Only check win condition if at least one hop has been made (path length >= 2)
+      if (
+        updatedPath.length >= 2 &&
+        action.payload.id === state.targetActor?.id
+      ) {
+        result = {
           ...state,
-          currentPath: [...state.currentPath, { actor: action.payload }],
+          currentPath: updatedPath,
           gameStatus: 'won',
         };
+        break;
       }
 
       // Check lose condition (max hops reached)
-      if (state.currentPath.length >= state.maxHops) {
-        return {
+      // In the game, a "hop" is a complete actor -> movie -> actor sequence
+      // We need to calculate actual number of hops based on actor selections
+      const totalActors = updatedPath.filter(item => item.actor).length;
+      // We start with an actor and add actors, so:
+      // 1 actor = 0 hops, 2 actors = 1 hop, 3 actors = 2 hops, etc.
+      const hopsMade = totalActors - 1;
+      if (hopsMade >= state.maxHops) {
+        result = {
           ...state,
-          currentPath: [...state.currentPath, { actor: action.payload }],
+          currentPath: updatedPath,
           gameStatus: 'lost',
         };
+        break;
       }
 
       // Continue game
-      return {
+      result = {
         ...state,
-        currentPath: [...state.currentPath, { actor: action.payload }],
+        currentPath: updatedPath,
       };
+      break;
     case 'RESET_GAME':
-      return {
+      result = {
         ...initialState,
         targetActor: state.targetActor,
       };
+      break;
     default:
-      return state;
+      result = state;
   }
+  console.log('[GameReducer] NewState:', result, 'currentPath:', result.currentPath, 'gameStatus:', result.gameStatus);
+  return result;
 };
 
 // Create context
@@ -91,37 +120,51 @@ const GameContext = createContext<GameContextProps | undefined>(undefined);
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  const setTargetActor = (actor: Actor) => {
+  // Debug state on changes
+  useEffect(() => {
+    console.log('Game state updated:', state);
+  }, [state]);
+
+  useEffect(() => {
+    console.log('[GameProvider] Initialized. State:', state);
+  }, []);
+
+  // Memoize action creators to prevent unnecessary rerenders
+  const setTargetActor = useCallback((actor: Actor) => {
     dispatch({ type: 'SET_TARGET_ACTOR', payload: actor });
-  };
+  }, []);
 
-  const startGame = (actor: Actor) => {
+  const startGame = useCallback((actor: Actor) => {
     dispatch({ type: 'START_GAME', payload: actor });
-  };
+  }, []);
 
-  const selectMovie = (movie: Movie) => {
+  const selectMovie = useCallback((movie: Movie) => {
     dispatch({ type: 'SELECT_MOVIE', payload: movie });
-  };
+  }, []);
 
-  const selectActor = (actor: Actor) => {
+  const selectActor = useCallback((actor: Actor) => {
     dispatch({ type: 'SELECT_ACTOR', payload: actor });
-  };
+  }, []);
 
-  const resetGame = () => {
+  const resetGame = useCallback(() => {
     dispatch({ type: 'RESET_GAME' });
-  };
+  }, []);
+
+  // Memoize the context value to prevent unnecessary rerenders
+  const contextValue = React.useMemo(
+    () => ({
+      state,
+      setTargetActor,
+      startGame,
+      selectMovie,
+      selectActor,
+      resetGame,
+    }),
+    [state, setTargetActor, startGame, selectMovie, selectActor, resetGame]
+  );
 
   return (
-    <GameContext.Provider
-      value={{
-        state,
-        setTargetActor,
-        startGame,
-        selectMovie,
-        selectActor,
-        resetGame,
-      }}
-    >
+    <GameContext.Provider value={contextValue}>
       {children}
     </GameContext.Provider>
   );

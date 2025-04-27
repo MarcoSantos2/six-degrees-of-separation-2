@@ -38,20 +38,39 @@ const CastSelectionPage: React.FC = () => {
     fetchCast();
   }, [currentMovie, navigate]);
 
+  useEffect(() => {
+    console.log('[CastSelectionPage] currentMovie:', currentMovie);
+    console.log('[CastSelectionPage] state:', state);
+    console.log('[CastSelectionPage] cast:', cast);
+  }, [currentMovie, state, cast]);
+
   const handleSelectActor = (actor: Actor) => {
-    selectActor(actor);
-    
-    // Check game status after selecting actor
+    console.log('[CastSelectionPage] handleSelectActor selected actor:', actor);
+    // Check win condition before updating state
     if (state.targetActor && actor.id === state.targetActor.id) {
+      selectActor(actor);
       // Win condition
       setTimeout(() => navigate('/end'), 500);
-    } else if (state.currentPath.length >= state.maxHops) {
+      return;
+    } 
+    
+    // Check lose condition - Calculate number of hops
+    // We're about to add another actor, so we need to calculate how many hops that would be
+    const totalCurrentActors = state.currentPath.filter(item => item.actor).length;
+    // After selecting this actor, we'll have totalCurrentActors + 1 actors
+    // 1 actor = 0 hops, 2 actors = 1 hop, 3 actors = 2 hops, etc.
+    const hopsMade = totalCurrentActors; // This will be the hops after adding the new actor
+    
+    if (hopsMade >= state.maxHops) {
+      selectActor(actor);
       // Lose condition (max hops reached)
       setTimeout(() => navigate('/end'), 500);
-    } else {
-      // Continue game
-      navigate('/movies');
-    }
+      return;
+    } 
+    
+    // Continue game
+    selectActor(actor);
+    navigate('/movies');
   };
 
   const filteredCast = searchTerm

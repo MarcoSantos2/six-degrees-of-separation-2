@@ -11,7 +11,9 @@ const GameStatus: React.FC = () => {
   }
 
   // Calculate hops made and remaining
-  const hopsMade = Math.floor(currentPath.length / 2);
+  // Count the number of actor selections (but first actor doesn't count as a hop)
+  const totalActors = currentPath.filter(item => item.actor).length;
+  const hopsMade = totalActors > 0 ? totalActors - 1 : 0;
   const hopsRemaining = maxHops - hopsMade;
 
   return (
@@ -23,7 +25,7 @@ const GameStatus: React.FC = () => {
         <div className="path-display">
           {currentPath.map((step, index) => (
             <span key={index}>
-              {index > 0 && index % 2 === 0 && ' → '}
+              {index > 0 && ' → '}
               {step.actor.name}
               {step.movie && ` → ${step.movie.title}`}
             </span>

@@ -23,6 +23,10 @@ const EndPage: React.FC = () => {
     return null;
   }
 
+  // Calculate hops properly based on actor count
+  const totalActors = state.currentPath.filter(item => item.actor).length;
+  const hopsMade = totalActors > 0 ? totalActors - 1 : 0;
+
   return (
     <div className="end-page">
       <h1>Game Over</h1>
@@ -35,7 +39,7 @@ const EndPage: React.FC = () => {
         </h2>
         <p>
           {state.gameStatus === 'won' 
-            ? `You connected to ${state.targetActor.name} in ${Math.floor(state.currentPath.length / 2)} moves.` 
+            ? `You connected to ${state.targetActor.name} in ${hopsMade} moves.` 
             : `You didn't reach ${state.targetActor.name} within ${state.maxHops} moves.`}
         </p>
         
@@ -44,8 +48,8 @@ const EndPage: React.FC = () => {
           <ul className="path-list">
             {state.currentPath.map((step, index) => (
               <li key={index}>
-                {index > 0 && index % 2 === 0 && <div className="path-arrow">↓</div>}
-                {index % 2 === 0 && (
+                {index > 0 && <div className="path-arrow">↓</div>}
+                {step.actor && (
                   <div className="path-actor">{step.actor.name}</div>
                 )}
                 {step.movie && (

@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import ActorCard from '../components/ActorCard';
 import './styles.css';
 
+// Additional popular actors to choose from
+const additionalActors = [
+  { id: 31, name: 'Tom Hanks', profile_path: '/xndWFsBlClOJFRdhSt4NBwiPq0o.jpg' },
+  { id: 3894, name: 'Christian Bale', profile_path: '/AcD1HrX7gzy9XNVFVX2wSp7lWGS.jpg' },
+  { id: 1892, name: 'Matt Damon', profile_path: '/l9DbR1V4IUf4G8kKuEnWW5clzpx.jpg' },
+  { id: 976, name: 'Jason Statham', profile_path: '/whNwkEQYWLFJA8ij0WyOOAD5xhQ.jpg' },
+  { id: 8691, name: 'Ryan Gosling', profile_path: '/aGM3BQI0jqKI4qNYZxhJKmPxaml.jpg' },
+];
+
 const StartPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [allActors, setAllActors] = useState<any[]>([]);
   const { startGame } = useGame();
   const navigate = useNavigate();
 
@@ -19,16 +29,41 @@ const StartPage: React.FC = () => {
     { id: 6161, name: 'Leonardo DiCaprio', profile_path: '/wo2hJpn04vbtmh0B9utCFdsQhxM.jpg' },
   ];
 
+  useEffect(() => {
+    // Combine default and additional actors
+    setAllActors([...defaultActors, ...additionalActors]);
+  }, []);
+
+  useEffect(() => {
+    console.log('[StartPage] allActors:', allActors);
+  }, [allActors]);
+
   const handleStartGame = (actor: typeof defaultActors[0]) => {
+    console.log('[StartPage] handleStartGame selected actor:', actor);
     startGame(actor);
     navigate('/movies');
   };
 
+  const handleRandomStart = () => {
+    const randomActor = allActors[Math.floor(Math.random() * allActors.length)];
+    console.log('[StartPage] handleRandomStart selected actor:', randomActor);
+    startGame(randomActor);
+    navigate('/movies');
+  };
+
   const filteredActors = searchTerm
-    ? defaultActors.filter(actor => 
+    ? allActors.filter(actor => 
         actor.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : defaultActors;
+    : allActors;
+
+  // Helper function to get fallback image URL if profile_path is null
+  const getActorImageUrl = (actor: any) => {
+    if (actor.profile_path) {
+      return `https://image.tmdb.org/t/p/w200${actor.profile_path}`;
+    }
+    return 'https://via.placeholder.com/200x300?text=No+Image';
+  };
 
   return (
     <div className="start-page">
@@ -43,11 +78,23 @@ const StartPage: React.FC = () => {
         />
       </div>
 
+      <div className="choice-buttons">
+        <button 
+          className="random-actor-button" 
+          onClick={handleRandomStart}
+        >
+          Choose Random Actor
+        </button>
+      </div>
+
       <div className="grid-container">
         {filteredActors.map(actor => (
           <ActorCard
             key={actor.id}
-            actor={actor}
+            actor={{
+              ...actor,
+              profile_path: getActorImageUrl(actor)
+            }}
             onClick={() => handleStartGame(actor)}
           />
         ))}

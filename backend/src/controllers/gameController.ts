@@ -4,7 +4,9 @@ import { getTargetActor, getMoviesByActor, getCastByMovie } from '../services/tm
 // GET /api/target - returns the target actor
 export const getTarget = async (_req: Request, res: Response): Promise<void> => {
   try {
+    console.log('Getting target actor...');
     const targetActor = await getTargetActor();
+    console.log('Target actor response:', targetActor);
     res.json(targetActor);
   } catch (error) {
     console.error('Error fetching target actor:', error);
