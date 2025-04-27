@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getTargetActor, getMoviesByActor, getCastByMovie } from '../services/tmdbService';
+import { getTargetActor, getMoviesByActor, getCastByMovie, getPopularActors } from '../services/tmdbService';
 
 // GET /api/target - returns the target actor
 export const getTarget = async (_req: Request, res: Response): Promise<void> => {
@@ -47,5 +47,18 @@ export const getCast = async (req: Request, res: Response): Promise<void> => {
   } catch (error) {
     console.error('Error fetching cast by movie:', error);
     res.status(500).json({ message: 'Failed to fetch cast' });
+  }
+};
+
+// GET /api/popular-actors - returns a list of popular actors
+export const getPopularActorsList = async (_req: Request, res: Response): Promise<void> => {
+  try {
+    console.log('Getting popular actors...');
+    const actors = await getPopularActors();
+    console.log('Popular actors response:', actors);
+    res.json(actors);
+  } catch (error) {
+    console.error('Error fetching popular actors:', error);
+    res.status(500).json({ message: 'Failed to fetch popular actors' });
   }
 }; 

@@ -66,16 +66,38 @@ const popularActors = [
   { id: 17605, name: "Keanu Reeves" }
 ];
 
+interface PopularActorsResponse {
+  results: {
+    id: number;
+    name: string;
+    profile_path: string;
+  }[];
+}
+
+export const getPopularActors = async (): Promise<Actor[]> => {
+  return rateLimitRequest(async () => {
+    const response = await tmdbApi.get<PopularActorsResponse>('/person/popular');
+    return response.data.results.map(actor => ({
+      id: actor.id,
+      name: actor.name,
+      profile_path: actor.profile_path,
+    }));
+  });
+};
+
 // Get random target actor
 export const getTargetActor = async (): Promise<Actor> => {
-  // Choose random actor from the list
-  const randomActor = popularActors[Math.floor(Math.random() * popularActors.length)];
-  console.log('Using random target actor:', randomActor.name);
-  
   return rateLimitRequest(async () => {
     try {
+      // Get popular actors
+      const popularActors = await getPopularActors();
+      
+      // Choose random actor from the list
+      const randomActor = popularActors[Math.floor(Math.random() * popularActors.length)];
+      console.log('Using random target actor:', randomActor.name);
+      
+      // Get additional details for the actor
       const response = await tmdbApi.get(`/person/${randomActor.id}`);
-      console.log('TMDB API response status:', response.status);
       return {
         id: response.data.id,
         name: response.data.name,
@@ -104,14 +126,50 @@ export const getMoviesByActor = async (actorId: number): Promise<Movie[]> => {
   });
 };
 
-// Get cast by movie ID
+interface ActorImage {
+  file_path: string;
+  vote_count: number;
+}
+
+interface ActorImages {
+  profiles: ActorImage[];
+}
+
+export const getActorImages = async (actorId: number): Promise<ActorImage[]> => {
+  return rateLimitRequest(async () => {
+    const response = await tmdbApi.get<ActorImages>(`/person/${actorId}/images`);
+    return response.data.profiles;
+  });
+};
+
 export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
     const response = await tmdbApi.get<Cast>(`/movie/${movieId}/credits`);
-    return response.data.cast.map((actor) => ({
-      id: actor.id,
-      name: actor.name,
-      profile_path: actor.profile_path,
-    }));
+    const cast = response.data.cast;
+    
+    // Fetch images for each actor
+    const actorsWithImages = await Promise.all(
+      cast.map(async (actor) => {
+        try {
+          const images = await getActorImages(actor.id);
+          return {
+            id: actor.id,
+            name: actor.name,
+            profile_path: actor.profile_path,
+            images: images
+          };
+        } catch (error) {
+          console.error(`Failed to fetch images for actor ${actor.id}:`, error);
+          return {
+            id: actor.id,
+            name: actor.name,
+            profile_path: actor.profile_path,
+            images: []
+          };
+        }
+      })
+    );
+    
+    return actorsWithImages;
   });
 }; 

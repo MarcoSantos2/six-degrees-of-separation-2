@@ -11,14 +11,14 @@
 **Verification**: The issue has been resolved and the game now navigates correctly after three levels.
 
 ## Issue 2: Missing actor images on start page
-**Status**: Not Started
+**Status**: Resolved
 **Description**: On the start page, some of the actors images/photos are not showing up.
 **Planned Fix**:
 - Investigate image loading/display logic
 - Implement fix for image loading
 - Test with various actors
-**Commit Message**: (to be added)
-**Verification**: (to be added)
+**Commit Message**: fix: implement robust actor image loading with fallbacks
+**Verification**: The issue has been resolved by implementing a robust image loading system with multiple fallbacks.
 
 ## Issue 3: Inconsistent actor card sizes
 **Status**: Not Started

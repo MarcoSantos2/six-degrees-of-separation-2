@@ -55,4 +55,12 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
     console.error(`Error fetching cast for movie ${movieId}:`, error);
     throw error;
   }
+};
+
+export const getPopularActors = async (): Promise<Actor[]> => {
+  const response = await fetch('/api/popular-actors');
+  if (!response.ok) {
+    throw new Error('Failed to fetch popular actors');
+  }
+  return response.json();
 }; 

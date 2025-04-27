@@ -1,7 +1,13 @@
+export interface ActorImage {
+  file_path: string;
+  vote_count: number;
+}
+
 export interface Actor {
   id: number;
   name: string;
-  profile_path: string | null;
+  profile_path: string;
+  images?: ActorImage[];
 }
 
 export interface Movie {
