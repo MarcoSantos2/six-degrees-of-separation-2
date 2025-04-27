@@ -12,14 +12,13 @@ const CastSelectionPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const { state, selectActor, resetGame } = useGame();
+  const { state, selectActor } = useGame();
   const navigate = useNavigate();
 
   const currentMovie = state.currentPath[state.currentPath.length - 1]?.movie;
 
   useEffect(() => {
     if (!currentMovie) {
-      navigate('/');
       return;
     }
 
@@ -38,14 +37,7 @@ const CastSelectionPage: React.FC = () => {
     fetchCast();
   }, [currentMovie, navigate]);
 
-  useEffect(() => {
-    console.log('[CastSelectionPage] currentMovie:', currentMovie);
-    console.log('[CastSelectionPage] state:', state);
-    console.log('[CastSelectionPage] cast:', cast);
-  }, [currentMovie, state, cast]);
-
   const handleSelectActor = (actor: Actor) => {
-    console.log('[CastSelectionPage] handleSelectActor selected actor:', actor);
     // Check win condition before updating state
     if (state.targetActor && actor.id === state.targetActor.id) {
       selectActor(actor);
@@ -55,11 +47,11 @@ const CastSelectionPage: React.FC = () => {
     } 
     
     // Check lose condition - Calculate number of hops
-    // We're about to add another actor, so we need to calculate how many hops that would be
-    const totalCurrentActors = state.currentPath.filter(item => item.actor).length;
-    // After selecting this actor, we'll have totalCurrentActors + 1 actors
-    // 1 actor = 0 hops, 2 actors = 1 hop, 3 actors = 2 hops, etc.
-    const hopsMade = totalCurrentActors; // This will be the hops after adding the new actor
+    // A complete hop is: Actor -> Movie -> Actor
+    // So we need to count complete cycles in the path
+    const totalSteps = state.currentPath.length;
+    // After selecting this actor, we'll have one more complete cycle
+    const hopsMade = totalSteps + 1;
     
     if (hopsMade >= state.maxHops) {
       selectActor(actor);

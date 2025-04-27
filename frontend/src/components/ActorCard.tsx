@@ -20,6 +20,8 @@ const ActorCard: React.FC<ActorCardProps> = ({ actor, onClick }) => {
       ? actor.profile_path // If it's already a full URL
       : `https://image.tmdb.org/t/p/w200${actor.profile_path}`; // If it's just the path
 
+  console.log({ imageUrl, actor });
+
   return (
     <div className="card actor-card" onClick={onClick}>
       <img 

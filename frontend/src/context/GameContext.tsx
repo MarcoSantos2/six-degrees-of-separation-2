@@ -57,10 +57,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       const updatedPath = [...state.currentPath, { actor: action.payload }];
       
       // Only check win condition if at least one hop has been made (path length >= 2)
-      if (
-        updatedPath.length >= 2 &&
-        action.payload.id === state.targetActor?.id
-      ) {
+      if (action.payload.id === state.targetActor?.id) {
         result = {
           ...state,
           currentPath: updatedPath,
