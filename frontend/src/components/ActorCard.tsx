@@ -54,14 +54,14 @@ const ActorCard: React.FC<ActorCardProps> = ({ actor, onClick }) => {
   };
 
   return (
-    <div className="actor-card" onClick={onClick}>
+    <div className="card" onClick={onClick}>
       <img
         src={getBestImageUrl()}
         alt={actor.name}
         onError={handleImageError}
-        className="actor-image"
+        className="card-image"
       />
-      <div className="actor-name">{actor.name}</div>
+      <div className="card-title">{actor.name}</div>
     </div>
   );
 };

@@ -10,7 +10,7 @@ const StartPage: React.FC = () => {
   const [allActors, setAllActors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { startGame } = useGame();
+  const { startGame, state } = useGame();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,15 +29,28 @@ const StartPage: React.FC = () => {
     fetchActors();
   }, []);
 
+  useEffect(() => {
+    // If we don't have a target actor, redirect to home
+    if (!state.targetActor) {
+      navigate('/');
+    }
+  }, [state.targetActor, navigate]);
+
   const handleStartGame = (actor: typeof allActors[0]) => {
-    console.log('[StartPage] handleStartGame selected actor:', actor);
+    if (!state.targetActor) {
+      navigate('/');
+      return;
+    }
     startGame(actor);
     navigate('/movies');
   };
 
   const handleRandomStart = () => {
+    if (!state.targetActor) {
+      navigate('/');
+      return;
+    }
     const randomActor = allActors[Math.floor(Math.random() * allActors.length)];
-    console.log('[StartPage] handleRandomStart selected actor:', randomActor);
     startGame(randomActor);
     navigate('/movies');
   };
@@ -47,6 +60,10 @@ const StartPage: React.FC = () => {
         actor.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : allActors;
+
+  if (!state.targetActor) {
+    return <div className="loading">Loading game data...</div>;
+  }
 
   if (loading) {
     return <div className="loading">Loading actors...</div>;
@@ -59,6 +76,10 @@ const StartPage: React.FC = () => {
   return (
     <div className="start-page">
       <h1>Choose a Starting Actor</h1>
+      <div className="target-info">
+        <p>Target Actor: <span className="highlight">{state.targetActor.name}</span></p>
+      </div>
+      
       <div className="search-container">
         <input
           type="text"

@@ -15,7 +15,6 @@ const App: React.FC = () => {
     // Simulate checking network connectivity or other initialization
     const checkApiConnection = async () => {
       try {
-        console.log('Initializing the application...');
         // Wait a moment to ensure everything is loaded
         await new Promise(resolve => setTimeout(resolve, 500));
         setIsReady(true);

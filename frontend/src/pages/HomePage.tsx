@@ -19,9 +19,7 @@ const HomePage: React.FC = () => {
       const fetchTargetActor = async () => {
         try {
           setLoading(true);
-          console.log('Fetching target actor...');
           const actor = await getTargetActor();
-          console.log('Actor data received:', actor);
           setTargetActor(actor);
           setLoading(false);
           fetchedRef.current = true;
@@ -39,11 +37,6 @@ const HomePage: React.FC = () => {
       fetchedRef.current = true;
     }
   }, []); // Empty dependency array - only run once on mount
-
-  // Debug log for state (only when something changes)
-  useEffect(() => {
-    console.log('Current state:', { loading, error, targetActor: state.targetActor });
-  }, [loading, error, state.targetActor]);
 
   const handleStartGame = () => {
     navigate('/start');

@@ -37,14 +37,7 @@ const MovieSelectionPage: React.FC = () => {
     fetchMovies();
   }, [currentActor, navigate]);
 
-  useEffect(() => {
-    console.log('[MovieSelectionPage] currentActor:', currentActor);
-    console.log('[MovieSelectionPage] state:', state);
-    console.log('[MovieSelectionPage] movies:', movies);
-  }, [currentActor, state, movies]);
-
   const handleSelectMovie = (movie: Movie) => {
-    console.log('[MovieSelectionPage] handleSelectMovie selected movie:', movie);
     selectMovie(movie);
     navigate('/cast');
   };
