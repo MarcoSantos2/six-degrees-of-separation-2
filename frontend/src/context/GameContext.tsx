@@ -20,7 +20,6 @@ type Action =
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
   const payloadLog = 'payload' in action ? action.payload : undefined;
-  console.log('[GameReducer] Action:', action.type, 'Payload:', payloadLog, 'PrevState:', state);
   let result: GameState;
   switch (action.type) {
     case 'SET_TARGET_ACTOR':
@@ -28,7 +27,6 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       if (state.targetActor?.id === action.payload.id) {
         return state;
       }
-      console.log('Setting target actor:', action.payload);
       result = {
         ...state,
         targetActor: action.payload,
@@ -97,7 +95,6 @@ const gameReducer = (state: GameState, action: Action): GameState => {
     default:
       result = state;
   }
-  console.log('[GameReducer] NewState:', result, 'currentPath:', result.currentPath, 'gameStatus:', result.gameStatus);
   return result;
 };
 
@@ -116,15 +113,6 @@ const GameContext = createContext<GameContextProps | undefined>(undefined);
 // Provider component
 export const GameProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
-
-  // Debug state on changes
-  useEffect(() => {
-    console.log('Game state updated:', state);
-  }, [state]);
-
-  useEffect(() => {
-    console.log('[GameProvider] Initialized. State:', state);
-  }, []);
 
   // Memoize action creators to prevent unnecessary rerenders
   const setTargetActor = useCallback((actor: Actor) => {

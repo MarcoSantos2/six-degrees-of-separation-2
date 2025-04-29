@@ -8,6 +8,8 @@
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
   background-color: #fff;
+  display: flex;
+  flex-direction: column;
 }
 
 .card:hover {
@@ -28,6 +30,7 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  margin-top: auto;
 }
 
 .card-year {
@@ -40,24 +43,164 @@
 /* Game status */
 .game-status {
   margin: 20px 0;
-  padding: 15px;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.target-actor-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.target-actor-card {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 10px;
   border-radius: 8px;
   background-color: #f8f9fa;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
 }
 
-.status-info {
+.target-actor-card:hover {
+  transform: translateY(-2px);
+}
+
+.target-actor-image {
+  width: 60px;
+  height: 60px;
+  border-radius: 30px;
+  object-fit: cover;
+}
+
+.target-actor-info {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
-.path-display {
-  padding: 10px;
-  background-color: #edf2ff;
-  border-radius: 4px;
+.target-actor-info h3 {
+  margin: 0;
+  color: #666;
   font-size: 0.9em;
-  line-height: 1.5;
+}
+
+.moves-remaining {
+  padding: 8px 15px;
+  background-color: #e3f2fd;
+  border-radius: 20px;
+  font-size: 0.9em;
+}
+
+.path-section {
+  margin-top: 20px;
+}
+
+.path-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  padding: 10px;
+  border-radius: 8px;
+  transition: background-color 0.2s;
+}
+
+.path-header:hover {
+  background-color: #f8f9fa;
+}
+
+.path-header h3 {
+  margin: 0;
+}
+
+.toggle-path-btn {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  cursor: pointer;
+  padding: 0 10px;
+  color: #666;
+}
+
+.interactive-path {
+  margin-top: 15px;
+  overflow-x: auto;
+  white-space: nowrap;
+  padding: 10px 0;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f8f9fa;
+}
+
+.interactive-path::-webkit-scrollbar {
+  height: 8px;
+}
+
+.interactive-path::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 4px;
+}
+
+.interactive-path::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0;
+  border-radius: 4px;
+}
+
+.path-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-right: 5px;
+}
+
+.path-actor-card, .path-movie-card {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-width: 80px;
+  padding: 8px;
+  border-radius: 6px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s;
+}
+
+.path-actor-card:hover, .path-movie-card:hover {
+  transform: translateY(-2px);
+}
+
+.path-actor-image, .path-movie-image {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.path-actor-name, .path-movie-title {
+  font-size: 0.8em;
+  text-align: center;
+  max-width: 80px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.path-arrow {
+  color: #666;
+  font-size: 1.2em;
+  margin: 0 5px;
+  display: inline-block;
 }
 
 .highlight {
@@ -66,26 +209,30 @@
 }
 
 .win-message {
+  margin-top: 20px;
   color: #2b8a3e;
   font-weight: bold;
-  padding: 10px;
+  padding: 15px;
   background-color: #d3f9d8;
-  border-radius: 4px;
+  border-radius: 8px;
+  text-align: center;
 }
 
 .lose-message {
+  margin-top: 20px;
   color: #c92a2a;
   font-weight: bold;
-  padding: 10px;
+  padding: 15px;
   background-color: #ffe3e3;
-  border-radius: 4px;
+  border-radius: 8px;
+  text-align: center;
 }
 
 /* Grid layouts */
 .grid-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 20px;
   padding: 20px;
+  justify-items: center;
 } 

@@ -9,6 +9,7 @@ export interface Movie {
   title: string;
   poster_path: string | null;
   release_date: string;
+  adult?: boolean;
 }
 
 export interface Cast {
@@ -22,4 +23,21 @@ export interface MovieCredits {
 export interface TMDBError {
   status_message: string;
   status_code: number;
+}
+
+export interface ReleaseDate {
+  certification: string;
+  release_date: string;
+  type: number;
+}
+
+export interface ReleaseDatesResult {
+  iso_3166_1: string;
+  release_dates: ReleaseDate[];
+}
+
+export interface MovieDetails {
+  release_dates: {
+    results: ReleaseDatesResult[];
+  };
 } 

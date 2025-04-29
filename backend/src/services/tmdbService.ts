@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { Actor, Cast, MovieCredits, Movie } from '../types';
+import { Actor, Cast, MovieCredits, Movie, MovieDetails, ReleaseDatesResult, ReleaseDate } from '../types';
 
 dotenv.config();
 
@@ -76,7 +76,8 @@ interface PopularActorsResponse {
 
 export const getPopularActors = async (): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
-    const response = await tmdbApi.get<PopularActorsResponse>('/person/popular');
+    const randomPage = Math.floor(Math.random() * 20) + 1;
+    const response = await tmdbApi.get<PopularActorsResponse>(`/person/popular?page=${randomPage}`);
     return response.data.results.map(actor => ({
       id: actor.id,
       name: actor.name,
@@ -117,7 +118,31 @@ export const getTargetActor = async (): Promise<Actor> => {
 export const getMoviesByActor = async (actorId: number): Promise<Movie[]> => {
   return rateLimitRequest(async () => {
     const response = await tmdbApi.get<MovieCredits>(`/person/${actorId}/movie_credits`);
-    return response.data.cast.map((movie) => ({
+    
+    // Filter out adult content while preserving legitimate X-rated movies
+    const filteredMovies = response.data.cast.filter(movie => {
+      // Skip if movie is marked as adult (pornographic)
+      if (movie.adult) {
+        return false;
+      }
+      
+      // Get movie details to check certification
+      return tmdbApi.get<MovieDetails>(`/movie/${movie.id}`)
+        .then(movieDetails => {
+          const usCertification = movieDetails.data.release_dates?.results
+            ?.find((r: ReleaseDatesResult) => r.iso_3166_1 === 'US')
+            ?.release_dates
+            ?.find((d: ReleaseDate) => d.certification);
+            
+          // Keep the movie if it has a legitimate rating (G, PG, PG-13, R, NC-17)
+          // or if it doesn't have a US certification (international films)
+          return !usCertification || 
+                 ['G', 'PG', 'PG-13', 'R', 'NC-17'].includes(usCertification.certification);
+        })
+        .catch(() => true); // If we can't get details, keep the movie
+    });
+
+    return filteredMovies.map((movie) => ({
       id: movie.id,
       title: movie.title,
       poster_path: movie.poster_path,

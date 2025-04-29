@@ -4,6 +4,9 @@ node_modules/
 /.pnp
 .pnp.js
 
+#ai-docs
+.ai-docs/
+
 # testing
 coverage/
 

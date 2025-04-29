@@ -7,13 +7,11 @@ const api = axios.create({
 
 // Add request/response logging
 api.interceptors.request.use(request => {
-  console.log('API Request:', request.method, request.url);
   return request;
 });
 
 api.interceptors.response.use(
   response => {
-    console.log('API Response:', response.status, response.config.url);
     return response;
   },
   error => {
@@ -29,7 +27,6 @@ api.interceptors.response.use(
 export const getTargetActor = async (): Promise<Actor> => {
   try {
     const response = await api.get<Actor>('/target');
-    console.log('Target actor data:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching target actor:', error);
