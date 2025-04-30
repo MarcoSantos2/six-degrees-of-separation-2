@@ -64,10 +64,15 @@ export const getCast = async (req: Request, res: Response): Promise<void> => {
 // GET /api/popular-actors - returns a list of popular actors
 export const getPopularActorsList = async (_req: Request, res: Response): Promise<void> => {
   try {
+    console.log('Getting popular actors...');
     const actors = await getPopularActors();
+    console.log('Popular actors response:', actors.length);
     res.json(actors);
   } catch (error) {
     console.error('Error fetching popular actors:', error);
-    res.status(500).json({ message: 'Failed to fetch popular actors' });
+    res.status(500).json({ 
+      message: 'Failed to fetch popular actors',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }; 
