@@ -8,9 +8,10 @@ import { Movie } from '../types';
 import './styles.css';
 
 const MovieSelectionPage: React.FC = () => {
-  const [movies, setMovies] = useState<Movie[]>([]);
+  const [allMovies, setAllMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const { state, selectMovie } = useGame();
   const navigate = useNavigate();
 
@@ -26,7 +27,7 @@ const MovieSelectionPage: React.FC = () => {
       try {
         setLoading(true);
         const movieData = await getMoviesByActor(currentActor.id);
-        setMovies(movieData);
+        setAllMovies(movieData);
         setLoading(false);
       } catch (err) {
         setError('Failed to fetch movies. Please try again later.');
@@ -41,6 +42,12 @@ const MovieSelectionPage: React.FC = () => {
     selectMovie(movie);
     navigate('/cast');
   };
+
+  const filteredMovies = searchTerm
+    ? allMovies.filter(movie => 
+        movie.title.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : allMovies;
 
   if (loading) {
     return <div className="loading">Loading movies...</div>;
@@ -57,8 +64,30 @@ const MovieSelectionPage: React.FC = () => {
       <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
         Movies starring {currentActor?.name}
       </h2>
-      {movies.length === 0 ? (
-        <div className="no-results" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>No movies found for this actor.</div>
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
+        <input
+          type="text"
+          placeholder="Search movies..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-input"
+          style={{
+            padding: '0.7em 1.2em',
+            borderRadius: 8,
+            border: '1px solid var(--border)',
+            fontSize: '1.1rem',
+            width: 320,
+            maxWidth: '90%',
+            background: 'var(--bg-panel)',
+            color: 'var(--text-main)',
+            outline: 'none',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+          }}
+          aria-label="Search movies"
+        />
+      </div>
+      {filteredMovies.length === 0 ? (
+        <div className="no-results" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>No movies found matching your search.</div>
       ) : (
         <div className="grid-container" style={{
           display: 'grid',
@@ -67,7 +96,7 @@ const MovieSelectionPage: React.FC = () => {
           margin: '0 auto',
           maxWidth: 800
         }}>
-          {movies.map(movie => (
+          {filteredMovies.map(movie => (
             <MovieCard
               key={movie.id}
               movie={movie}

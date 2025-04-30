@@ -73,4 +73,14 @@ export const getPopularActors = async (): Promise<Actor[]> => {
     console.error('Error fetching popular actors:', error);
     throw error;
   }
+};
+
+export const searchMovies = async (query: string): Promise<Movie[]> => {
+  try {
+    const response = await api.get<Movie[]>(`/search-movies?query=${encodeURIComponent(query)}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error searching movies with query "${query}":`, error);
+    throw error;
+  }
 }; 
