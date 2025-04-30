@@ -6,6 +6,9 @@ import StartPage from './pages/StartPage';
 import MovieSelectionPage from './pages/MovieSelectionPage';
 import CastSelectionPage from './pages/CastSelectionPage';
 import EndPage from './pages/EndPage';
+import Navbar from './components/Navbar';
+import { ToastProvider } from './components/ToastProvider';
+import Modal from './components/Modal';
 
 const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
@@ -42,20 +45,23 @@ const App: React.FC = () => {
   }
 
   return (
-    <GameProvider>
-      <Router>
-        <div className="container">
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/start" element={<StartPage />} />
-            <Route path="/movies" element={<MovieSelectionPage />} />
-            <Route path="/cast" element={<CastSelectionPage />} />
-            <Route path="/end" element={<EndPage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </div>
-      </Router>
-    </GameProvider>
+    <ToastProvider>
+      <GameProvider>
+        <Router>
+          <Navbar />
+          <div className="container">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/start" element={<StartPage />} />
+              <Route path="/movies" element={<MovieSelectionPage />} />
+              <Route path="/cast" element={<CastSelectionPage />} />
+              <Route path="/end" element={<EndPage />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </div>
+        </Router>
+      </GameProvider>
+    </ToastProvider>
   );
 };
 

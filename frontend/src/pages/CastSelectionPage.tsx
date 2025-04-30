@@ -80,26 +80,44 @@ const CastSelectionPage: React.FC = () => {
   }
 
   return (
-    <div className="cast-selection-page">
+    <div className="cast-selection-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
       <GameStatus />
-      
-      <h1>Select an Actor</h1>
-      <h2>Cast of {currentMovie?.title}</h2>
-
-      <div className="search-container">
+      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Select an Actor</h1>
+      <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
+        Cast of {currentMovie?.title}
+      </h2>
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
         <input
           type="text"
           placeholder="Search actors..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
+          style={{
+            padding: '0.7em 1.2em',
+            borderRadius: 8,
+            border: '1px solid var(--border)',
+            fontSize: '1.1rem',
+            width: 320,
+            maxWidth: '90%',
+            background: 'var(--bg-panel)',
+            color: 'var(--text-main)',
+            outline: 'none',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+          }}
+          aria-label="Search actors"
         />
       </div>
-
       {filteredCast.length === 0 ? (
-        <div className="no-results">No actors found matching your search.</div>
+        <div className="no-results" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>No actors found matching your search.</div>
       ) : (
-        <div className="grid-container">
+        <div className="grid-container" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: '1.5em',
+          margin: '0 auto',
+          maxWidth: 800
+        }}>
           {filteredCast.map(actor => (
             <ActorCard
               key={actor.id}
