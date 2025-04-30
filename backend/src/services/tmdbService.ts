@@ -180,4 +180,31 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
     
     return actorsWithImages;
   });
+};
+
+interface MovieSearchResponse {
+  results: {
+    id: number;
+    title: string;
+    poster_path: string;
+    release_date: string;
+  }[];
+}
+
+export const searchMovies = async (query: string): Promise<Movie[]> => {
+  return rateLimitRequest(async () => {
+    const response = await tmdbApi.get<MovieSearchResponse>(`/search/movie`, {
+      params: {
+        query,
+        include_adult: false,
+      },
+    });
+    
+    return response.data.results.map(movie => ({
+      id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      release_date: movie.release_date,
+    }));
+  });
 }; 
