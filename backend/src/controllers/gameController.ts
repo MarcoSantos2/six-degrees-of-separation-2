@@ -1,8 +1,9 @@
 import { Request, Response } from 'express';
-import { getTargetActor, getMoviesByActor, getCastByMovie, getPopularActors } from '../services/tmdbService';
+import { getTargetActor, getMoviesByActor, getCastByMovie, getPopularActors, searchMovies } from '../services/tmdbService';
 
 // GET /api/target - returns the target actor
 export const getTarget = async (_req: Request, res: Response): Promise<void> => {
+  console.log('Target actor request received');
   try {
     console.log('Getting target actor...');
     const targetActor = await getTargetActor();
@@ -10,7 +11,17 @@ export const getTarget = async (_req: Request, res: Response): Promise<void> => 
     res.json(targetActor);
   } catch (error) {
     console.error('Error fetching target actor:', error);
-    res.status(500).json({ message: 'Failed to fetch target actor' });
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    }
+    res.status(500).json({ 
+      message: 'Failed to fetch target actor',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 
@@ -53,10 +64,33 @@ export const getCast = async (req: Request, res: Response): Promise<void> => {
 // GET /api/popular-actors - returns a list of popular actors
 export const getPopularActorsList = async (_req: Request, res: Response): Promise<void> => {
   try {
+    console.log('Getting popular actors...');
     const actors = await getPopularActors();
+    console.log('Popular actors response:', actors.length);
     res.json(actors);
   } catch (error) {
     console.error('Error fetching popular actors:', error);
-    res.status(500).json({ message: 'Failed to fetch popular actors' });
+    res.status(500).json({ 
+      message: 'Failed to fetch popular actors',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+};
+
+// GET /api/search-movies?query=<search_term> - returns movies matching the search query
+export const searchMoviesByTitle = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const query = req.query.query as string;
+    
+    if (!query) {
+      res.status(400).json({ message: 'Search query is required' });
+      return;
+    }
+    
+    const movies = await searchMovies(query);
+    res.json(movies);
+  } catch (error) {
+    console.error('Error searching movies:', error);
+    res.status(500).json({ message: 'Failed to search movies' });
   }
 }; 

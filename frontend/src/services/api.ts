@@ -7,11 +7,20 @@ const api = axios.create({
 
 // Add request/response logging
 api.interceptors.request.use(request => {
+  console.log('API Request:', {
+    method: request.method?.toUpperCase(),
+    url: request.url,
+    baseURL: request.baseURL
+  });
   return request;
 });
 
 api.interceptors.response.use(
   response => {
+    console.log('API Response:', {
+      status: response.status,
+      url: response.config.url
+    });
     return response;
   },
   error => {
@@ -26,7 +35,9 @@ api.interceptors.response.use(
 
 export const getTargetActor = async (): Promise<Actor> => {
   try {
+    console.log('Fetching target actor...');
     const response = await api.get<Actor>('/target');
+    console.log('Target actor response:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching target actor:', error);
@@ -55,9 +66,21 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
 };
 
 export const getPopularActors = async (): Promise<Actor[]> => {
-  const response = await fetch('/api/popular-actors');
-  if (!response.ok) {
-    throw new Error('Failed to fetch popular actors');
+  try {
+    const response = await api.get<Actor[]>('/popular-actors');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching popular actors:', error);
+    throw error;
   }
-  return response.json();
+};
+
+export const searchMovies = async (query: string): Promise<Movie[]> => {
+  try {
+    const response = await api.get<Movie[]>(`/search-movies?query=${encodeURIComponent(query)}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error searching movies with query "${query}":`, error);
+    throw error;
+  }
 }; 

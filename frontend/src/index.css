@@ -1,4 +1,28 @@
 :root {
+  /* Color Palette */
+  --color-cinema-red: #E50914;
+  --color-spotlight-gold: #FFD700;
+  --color-silver-screen: #C0C0C0;
+  --color-midnight-black: #0A0A0A;
+  --color-white-frame: #FFFFFF;
+
+  /* Font Families */
+  --font-heading: 'Bebas Neue', Arial, sans-serif;
+  --font-body: 'Montserrat', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --font-nav: 'Oswald', Arial, sans-serif;
+
+  /* Light mode defaults */
+  --bg-main: var(--color-white-frame);
+  --bg-panel: var(--color-white-frame);
+  --text-main: var(--color-midnight-black);
+  --text-secondary: var(--color-silver-screen);
+  --border: var(--color-silver-screen);
+  --button-primary-bg: var(--color-cinema-red);
+  --button-primary-text: var(--color-white-frame);
+  --button-secondary-bg: var(--color-silver-screen);
+  --button-secondary-text: var(--color-midnight-black);
+  --accent: var(--color-spotlight-gold);
+
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
   font-weight: 400;
@@ -13,10 +37,64 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+[data-theme="dark"] {
+  --bg-main: var(--color-midnight-black);
+  --bg-panel: #181818;
+  --text-main: var(--color-white-frame);
+  --text-secondary: var(--color-silver-screen);
+  --border: var(--color-silver-screen);
+  --button-primary-bg: var(--color-cinema-red);
+  --button-primary-text: var(--color-white-frame);
+  --button-secondary-bg: var(--color-silver-screen);
+  --button-secondary-text: var(--color-midnight-black);
+  --accent: var(--color-spotlight-gold);
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  background: var(--bg-main);
+  color: var(--text-main);
+  font-family: var(--font-body);
+  transition: background 0.3s, color 0.3s;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  letter-spacing: 0.04em;
+  margin-top: 0;
+  color: var(--text-main);
+}
+
+nav, .navbar {
+  font-family: var(--font-nav);
+}
+
+button, .btn {
+  font-family: var(--font-nav);
+  background: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: none;
+  border-radius: 4px;
+  padding: 0.6em 1.2em;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+button:hover, .btn:hover {
+  background: var(--accent);
+  color: var(--color-midnight-black);
+}
+
+.card, .panel {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+  padding: 1.5em;
+  margin-bottom: 1.5em;
+  color: var(--color-midnight-black);
 }
 
 #root {
@@ -27,10 +105,6 @@ body {
 
 @media (prefers-color-scheme: dark) {
   :root {
-    color: rgba(255, 255, 255, 0.87);
-    background-color: #242424;
-  }
-  button {
-    background-color: #1a1a1a;
+    color-scheme: dark;
   }
 } 

@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { Actor, Cast, MovieCredits, Movie, MovieDetails, ReleaseDatesResult, ReleaseDate } from '../types';
+import { Actor, Cast, MovieCredits, Movie } from '../types';
 
 dotenv.config();
 
@@ -90,15 +90,20 @@ export const getPopularActors = async (): Promise<Actor[]> => {
 export const getTargetActor = async (): Promise<Actor> => {
   return rateLimitRequest(async () => {
     try {
+      console.log('Fetching popular actors...');
       // Get popular actors
       const popularActors = await getPopularActors();
+      console.log('Popular actors fetched:', popularActors.length);
       
       // Choose random actor from the list
       const randomActor = popularActors[Math.floor(Math.random() * popularActors.length)];
-      console.log('Using random target actor:', randomActor.name);
+      console.log('Selected random actor:', randomActor.name);
       
       // Get additional details for the actor
+      console.log('Fetching actor details for:', randomActor.id);
       const response = await tmdbApi.get(`/person/${randomActor.id}`);
+      console.log('Actor details received:', response.data.name);
+      
       return {
         id: response.data.id,
         name: response.data.name,
@@ -108,6 +113,8 @@ export const getTargetActor = async (): Promise<Actor> => {
       console.error('TMDB API error:', error.message);
       if (error.response) {
         console.error('Error response:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
       }
       throw error;
     }
@@ -118,31 +125,7 @@ export const getTargetActor = async (): Promise<Actor> => {
 export const getMoviesByActor = async (actorId: number): Promise<Movie[]> => {
   return rateLimitRequest(async () => {
     const response = await tmdbApi.get<MovieCredits>(`/person/${actorId}/movie_credits`);
-    
-    // Filter out adult content while preserving legitimate X-rated movies
-    const filteredMovies = response.data.cast.filter(movie => {
-      // Skip if movie is marked as adult (pornographic)
-      if (movie.adult) {
-        return false;
-      }
-      
-      // Get movie details to check certification
-      return tmdbApi.get<MovieDetails>(`/movie/${movie.id}`)
-        .then(movieDetails => {
-          const usCertification = movieDetails.data.release_dates?.results
-            ?.find((r: ReleaseDatesResult) => r.iso_3166_1 === 'US')
-            ?.release_dates
-            ?.find((d: ReleaseDate) => d.certification);
-            
-          // Keep the movie if it has a legitimate rating (G, PG, PG-13, R, NC-17)
-          // or if it doesn't have a US certification (international films)
-          return !usCertification || 
-                 ['G', 'PG', 'PG-13', 'R', 'NC-17'].includes(usCertification.certification);
-        })
-        .catch(() => true); // If we can't get details, keep the movie
-    });
-
-    return filteredMovies.map((movie) => ({
+    return response.data.cast.map((movie) => ({
       id: movie.id,
       title: movie.title,
       poster_path: movie.poster_path,
@@ -196,5 +179,32 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
     );
     
     return actorsWithImages;
+  });
+};
+
+interface MovieSearchResponse {
+  results: {
+    id: number;
+    title: string;
+    poster_path: string;
+    release_date: string;
+  }[];
+}
+
+export const searchMovies = async (query: string): Promise<Movie[]> => {
+  return rateLimitRequest(async () => {
+    const response = await tmdbApi.get<MovieSearchResponse>(`/search/movie`, {
+      params: {
+        query,
+        include_adult: false,
+      },
+    });
+    
+    return response.data.results.map(movie => ({
+      id: movie.id,
+      title: movie.title,
+      poster_path: movie.poster_path,
+      release_date: movie.release_date,
+    }));
   });
 }; 

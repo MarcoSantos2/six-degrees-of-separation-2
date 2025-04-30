@@ -74,32 +74,54 @@ const StartPage: React.FC = () => {
   }
 
   return (
-    <div className="start-page">
-      <h1>Choose a Starting Actor</h1>
-      <div className="target-info">
-        <p>Target Actor: <span className="highlight">{state.targetActor.name}</span></p>
+    <div className="start-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
+      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Choose a Starting Actor</h1>
+      <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
+        Connect actors to the target by hopping through movies and co-stars. How few steps can you do it in?
+      </p>
+      <div className="target-info" style={{ textAlign: 'center', marginBottom: '1.5em' }}>
+        <span style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Target Actor: </span>
+        <span className="highlight" style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem' }}>{state.targetActor.name}</span>
       </div>
-      
-      <div className="search-container">
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
         <input
           type="text"
           placeholder="Filter actors..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
+          style={{
+            padding: '0.7em 1.2em',
+            borderRadius: 8,
+            border: '1px solid var(--border)',
+            fontSize: '1.1rem',
+            width: 320,
+            maxWidth: '90%',
+            background: 'var(--bg-panel)',
+            color: 'var(--text-main)',
+            outline: 'none',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+          }}
+          aria-label="Filter actors"
         />
       </div>
-
-      <div className="choice-buttons">
+      <div className="choice-buttons" style={{ display: 'flex', justifyContent: 'center', marginBottom: '2em' }}>
         <button 
-          className="random-actor-button" 
+          className="btn"
+          style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem', marginRight: 12 }}
           onClick={handleRandomStart}
         >
           Choose Random Actor
         </button>
+        <button className="btn" style={{ background: 'var(--button-secondary-bg)', color: 'var(--button-secondary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={() => navigate('/')}>Back to Home</button>
       </div>
-
-      <div className="grid-container">
+      <div className="grid-container" style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+        gap: '1.5em',
+        margin: '0 auto',
+        maxWidth: 800
+      }}>
         {filteredActors.map(actor => (
           <ActorCard
             key={actor.id}
@@ -108,10 +130,6 @@ const StartPage: React.FC = () => {
           />
         ))}
       </div>
-
-      <button className="back-button" onClick={() => navigate('/')}>
-        Back to Home
-      </button>
     </div>
   );
 };

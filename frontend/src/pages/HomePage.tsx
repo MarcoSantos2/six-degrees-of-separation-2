@@ -14,29 +14,39 @@ const HomePage: React.FC = () => {
   const fetchedRef = React.useRef(false);
 
   useEffect(() => {
+    console.log('HomePage useEffect - Current state:', {
+      fetchedRef: fetchedRef.current,
+      hasTargetActor: !!state.targetActor,
+      loading
+    });
+
     // Only fetch if we haven't already fetched and don't have a target actor
     if (!fetchedRef.current && !state.targetActor) {
       const fetchTargetActor = async () => {
         try {
+          console.log('Starting target actor fetch...');
           setLoading(true);
           const actor = await getTargetActor();
+          console.log('Target actor received:', actor);
           setTargetActor(actor);
           setLoading(false);
           fetchedRef.current = true;
+          console.log('Target actor fetch completed');
         } catch (err) {
           console.error('Error in fetchTargetActor:', err);
           setError('Failed to fetch target actor. Please try again later.');
           setLoading(false);
+          fetchedRef.current = true;
         }
       };
 
       fetchTargetActor();
     } else if (state.targetActor) {
-      // If we already have a target actor, just update loading state
+      console.log('Using existing target actor:', state.targetActor);
       setLoading(false);
       fetchedRef.current = true;
     }
-  }, []); // Empty dependency array - only run once on mount
+  }, [state.targetActor, setTargetActor]); // Added dependencies
 
   const handleStartGame = () => {
     navigate('/start');
@@ -59,11 +69,19 @@ const HomePage: React.FC = () => {
     <div className="home-page">
       <h1>Six Degrees of Movie Separation</h1>
       <div className="game-intro">
-        <p>
+        <p
+          style={{
+            color: (document.documentElement.getAttribute('data-theme') === 'dark') ? '#000' : 'var(--text-main)'
+          }}
+        >
           Connect from any starting actor to the target actor in 6 or fewer hops.
           Select a movie, then an actor from that movie, then another movie that actor appears in, and so on.
         </p>
-        <p>
+        <p
+          style={{
+            color: (document.documentElement.getAttribute('data-theme') === 'dark') ? '#000' : 'var(--text-main)'
+          }}
+        >
           You win if you reach the target actor within 6 moves!
         </p>
       </div>

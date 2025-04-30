@@ -28,46 +28,38 @@ const EndPage: React.FC = () => {
   const hopsMade = totalActors > 0 ? totalActors - 1 : 0;
 
   return (
-    <div className="end-page">
-      <h1>Game Over</h1>
-      
+    <div className="end-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
+      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Game Over</h1>
       <GameStatus />
-      
-      <div className="game-summary">
-        <h2>
+      <div className="game-summary" style={{ background: 'var(--bg-panel)', borderRadius: 12, margin: '2em auto', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '2em', maxWidth: 600 }}>
+        <h2 style={{ textAlign: 'center', color: state.gameStatus === 'won' ? 'var(--color-spotlight-gold)' : 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.5rem', marginBottom: '1em' }}>
           {state.gameStatus === 'won' ? 'Congratulations! You won!' : 'Better luck next time!'}
         </h2>
-        <p>
+        <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
           {state.gameStatus === 'won' 
-            ? `You connected to ${state.targetActor.name} in ${hopsMade} moves.` 
+            ? `You connected to ${state.targetActor.name} in ${hopsMade + 1} moves.` 
             : `You didn't reach ${state.targetActor.name} within ${state.maxHops} moves.`}
         </p>
-        
-        <div className="path-summary">
-          <h3>Your Path:</h3>
+        <div className="path-summary" style={{ marginTop: 20 }}>
+          <h3 style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem' }}>Your Path:</h3>
           <ul className="path-list">
             {state.currentPath.map((step, index) => (
               <li key={index}>
                 {index > 0 && <div className="path-arrow">↓</div>}
                 {step.actor && (
-                  <div className="path-actor">{step.actor.name}</div>
+                  <div className="path-actor" style={{ color: 'var(--color-midnight-black)', fontWeight: 'bold' }}>{step.actor.name}</div>
                 )}
                 {step.movie && (
-                  <div className="path-movie">in "{step.movie.title}"</div>
+                  <div className="path-movie" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginLeft: 20 }}>in "{step.movie.title}"</div>
                 )}
               </li>
             ))}
           </ul>
         </div>
-      </div>
-      
-      <div className="button-container">
-        <button className="play-again-button" onClick={handlePlayAgain}>
-          Play Again (Same Target)
-        </button>
-        <button className="new-game-button" onClick={handleNewGame}>
-          New Game (New Target)
-        </button>
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5em', marginTop: '2em' }}>
+          <button className="btn" style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={handlePlayAgain}>Play Again</button>
+          <button className="btn" style={{ background: 'var(--button-secondary-bg)', color: 'var(--button-secondary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={handleNewGame}>New Game</button>
+        </div>
       </div>
     </div>
   );
