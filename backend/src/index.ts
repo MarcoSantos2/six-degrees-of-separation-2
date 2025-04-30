@@ -3,10 +3,8 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import gameRoutes from './routes/gameRoutes';
 
-// Load environment variables
 dotenv.config();
 
-// Create Express app
 const app = express();
 const port = Number(process.env.PORT) || 5000;
 

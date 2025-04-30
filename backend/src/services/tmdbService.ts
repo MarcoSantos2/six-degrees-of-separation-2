@@ -50,22 +50,6 @@ const rateLimitRequest = async <T>(requestFn: () => Promise<T>): Promise<T> => {
   return requestFn();
 };
 
-// List of popular actors to randomize
-const popularActors = [
-  { id: 1397778, name: "Anya Taylor-Joy" },
-  { id: 287, name: "Brad Pitt" },
-  { id: 1245, name: "Scarlett Johansson" },
-  { id: 6193, name: "Leonardo DiCaprio" },
-  { id: 1136406, name: "Tom Hanks" },
-  { id: 2192, name: "Meryl Streep" },
-  { id: 1813, name: "Anne Hathaway" },
-  { id: 5292, name: "Denzel Washington" },
-  { id: 74568, name: "Chris Hemsworth" },
-  { id: 224513, name: "Florence Pugh" },
-  { id: 1283, name: "Helena Bonham Carter" },
-  { id: 17605, name: "Keanu Reeves" }
-];
-
 interface PopularActorsResponse {
   results: {
     id: number;
