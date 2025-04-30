@@ -20,7 +20,9 @@ export default defineConfig({
       'social-ducks-jam.loca.lt',
       'young-bars-rhyme.loca.lt',
       'six-degrees-game.loca.lt',
-      'easy-parrots-learn.loca.lt'
+      'easy-parrots-learn.loca.lt',
+      'six-degrees.loca.lt',
+      'warm-skunk-83.loca.lt'
     ]
   },
 }); 
