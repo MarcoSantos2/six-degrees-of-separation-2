@@ -27,10 +27,13 @@
   padding: 10px;
   font-weight: bold;
   text-align: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
   margin-top: auto;
+  word-break: break-word;
+  line-height: 1.2;
+  max-height: 6em; /* ~5 lines */
+  overflow-y: auto;
+  font-size: clamp(0.85rem, 1vw, 1.1rem);
+  display: block;
 }
 
 .card-year {

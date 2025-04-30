@@ -3,6 +3,7 @@ import { getTargetActor, getMoviesByActor, getCastByMovie, getPopularActors } fr
 
 // GET /api/target - returns the target actor
 export const getTarget = async (_req: Request, res: Response): Promise<void> => {
+  console.log('Target actor request received');
   try {
     console.log('Getting target actor...');
     const targetActor = await getTargetActor();
@@ -10,7 +11,17 @@ export const getTarget = async (_req: Request, res: Response): Promise<void> => 
     res.json(targetActor);
   } catch (error) {
     console.error('Error fetching target actor:', error);
-    res.status(500).json({ message: 'Failed to fetch target actor' });
+    if (error instanceof Error) {
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      });
+    }
+    res.status(500).json({ 
+      message: 'Failed to fetch target actor',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 };
 

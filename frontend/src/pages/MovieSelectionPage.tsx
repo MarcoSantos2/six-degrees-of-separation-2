@@ -51,16 +51,22 @@ const MovieSelectionPage: React.FC = () => {
   }
 
   return (
-    <div className="movie-selection-page">
+    <div className="movie-selection-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
       <GameStatus />
-      
-      <h1>Select a Movie</h1>
-      <h2>Movies starring {currentActor?.name}</h2>
-
+      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Select a Movie</h1>
+      <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
+        Movies starring {currentActor?.name}
+      </h2>
       {movies.length === 0 ? (
-        <div className="no-results">No movies found for this actor.</div>
+        <div className="no-results" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>No movies found for this actor.</div>
       ) : (
-        <div className="grid-container">
+        <div className="grid-container" style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gap: '1.5em',
+          margin: '0 auto',
+          maxWidth: 800
+        }}>
           {movies.map(movie => (
             <MovieCard
               key={movie.id}
