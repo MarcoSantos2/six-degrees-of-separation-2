@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
 import { Actor, Movie, GameState } from '../types';
 
 // Initial state
@@ -9,7 +9,8 @@ const initialState: GameState = {
   gameStatus: 'not_started',
   settings: {
     filterByWestern: true,
-    theme: 'light'
+    theme: 'light',
+    maxHops: 6
   }
 };
 
@@ -24,88 +25,89 @@ type Action =
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
-  const payloadLog = 'payload' in action ? action.payload : undefined;
-  let result: GameState;
   switch (action.type) {
     case 'SET_TARGET_ACTOR':
       // Prevent setting the same actor again
       if (state.targetActor?.id === action.payload.id) {
         return state;
       }
-      result = {
+      return {
         ...state,
         targetActor: action.payload,
       };
-      break;
+
     case 'START_GAME':
-      result = {
+      return {
         ...state,
         targetActor: action.payload.targetActor,
         currentPath: [{ actor: action.payload.startingActor }],
         gameStatus: 'in_progress',
       };
-      break;
+
     case 'SELECT_MOVIE':
-      result = {
+      // Prevent selection if game is already over
+      if (state.gameStatus === 'lost' || state.gameStatus === 'won') {
+        return state;
+      }
+      return {
         ...state,
         currentPath: [
           ...state.currentPath.slice(0, -1),
           { ...state.currentPath[state.currentPath.length - 1], movie: action.payload },
         ],
       };
-      break;
+
     case 'SELECT_ACTOR':
+      // Prevent selection if game is already over
+      if (state.gameStatus === 'lost' || state.gameStatus === 'won') {
+        return state;
+      }
+
       // Create updated path with the new actor
       const updatedPath = [...state.currentPath, { actor: action.payload }];
       
-      // Only check win condition if at least one hop has been made (path length >= 2)
+      // Check win condition
       if (action.payload.id === state.targetActor?.id) {
-        result = {
+        return {
           ...state,
           currentPath: updatedPath,
           gameStatus: 'won',
         };
-        break;
       }
 
-      // Check lose condition (max hops reached)
-      // In the game, a "hop" is a complete actor -> movie -> actor sequence
-      // We need to calculate actual number of hops based on actor selections
+      // Calculate moves made (each actor selection counts as a move)
       const totalActors = updatedPath.filter(item => item.actor).length;
-      // We start with an actor and add actors, so:
-      // 1 actor = 0 hops, 2 actors = 1 hop, 3 actors = 2 hops, etc.
-      const hopsMade = totalActors - 1;
-      if (hopsMade >= state.maxHops) {
-        result = {
+
+      // Check lose condition (max moves reached)
+      if (totalActors >= state.settings.maxHops) {
+        return {
           ...state,
           currentPath: updatedPath,
           gameStatus: 'lost',
         };
-        break;
       }
 
       // Continue game
-      result = {
+      return {
         ...state,
         currentPath: updatedPath,
       };
-      break;
+
     case 'RESET_GAME':
-      result = {
+      return {
         ...initialState,
         targetActor: state.targetActor,
       };
-      break;
+
     case 'UPDATE_SETTINGS':
-      result = {
+      return {
         ...state,
         settings: action.payload
       };
-      break;
+
     default:
-      result = state;
+      return state;
   }
-  return result;
 };
 
 // Create context

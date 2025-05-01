@@ -52,7 +52,7 @@ const HomePage: React.FC = () => {
     try {
       const targetActor = await getTargetActor();
       setTargetActor(targetActor);
-      navigate('/start');
+    navigate('/start');
     } catch (error) {
       console.error('Failed to start game:', error);
     }
@@ -73,8 +73,28 @@ const HomePage: React.FC = () => {
 
   return (
     <div className="home-page" style={{ maxWidth: 800, margin: '0 auto', padding: '2em', textAlign: 'center' }}>
-      <h1 style={{ fontSize: '3rem', marginBottom: '0.5em', letterSpacing: '0.08em' }}>Six Degrees of Separation</h1>
-      <p style={{ fontSize: '1.2rem', marginBottom: '2em', color: 'var(--text-secondary)' }}>
+      <h1 style={{ 
+        fontSize: '3rem', 
+        marginBottom: '0.5em', 
+        letterSpacing: '0.08em',
+        color: 'var(--text-primary)',
+        fontWeight: '800'
+      }}>
+        We are all connected
+      </h1>
+      <p style={{ 
+        fontSize: '1.5rem', 
+        marginBottom: '2.5em', 
+        color: 'var(--text-primary)',
+        fontWeight: '600',
+        maxWidth: '600px',
+        margin: '0 auto 2.5em',
+        lineHeight: '1.4',
+        padding: '1em',
+        borderRadius: '12px',
+        background: 'var(--bg-panel)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+      }}>
         Connect any two actors through their movie collaborations
       </p>
 
@@ -91,6 +111,7 @@ const HomePage: React.FC = () => {
           border: 'none',
           cursor: 'pointer',
           transition: 'transform 0.2s',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
         }}
       >
         Start Game

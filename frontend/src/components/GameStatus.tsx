@@ -1,14 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import { useToast } from './ToastProvider';
 import './styles.css';
 
 const GameStatus: React.FC = () => {
   const { state } = useGame();
-  const { currentPath, maxHops, targetActor, gameStatus } = state;
+  const { currentPath, targetActor, gameStatus } = state;
   const [isPathExpanded, setIsPathExpanded] = useState(true);
   const { showToast } = useToast();
   const hasShownWinToast = useRef(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (gameStatus === 'won' && !hasShownWinToast.current) {
@@ -20,14 +22,21 @@ const GameStatus: React.FC = () => {
     }
   }, [gameStatus, showToast]);
 
+  // Add effect to handle game over conditions
+  useEffect(() => {
+    if (gameStatus === 'lost' || gameStatus === 'won') {
+      navigate('/end');
+    }
+  }, [gameStatus, navigate]);
+
   if (!targetActor || gameStatus === 'not_started') {
     return null;
   }
 
   // Calculate hops made and remaining
   const totalActors = currentPath.filter(item => item.actor).length;
-  const hopsMade = totalActors > 0 ? totalActors - 1 : 0;
-  const hopsRemaining = maxHops - hopsMade - 1;
+  const hopsMade = totalActors; // Each actor selection counts as a move
+  const hopsRemaining = state.settings.maxHops - hopsMade;
 
   const togglePath = () => {
     setIsPathExpanded(!isPathExpanded);
@@ -108,16 +117,6 @@ const GameStatus: React.FC = () => {
           </div>
         )}
       </div>
-      {gameStatus === 'won' && (
-        <div className="win-message" style={{ color: 'var(--color-spotlight-gold)', fontWeight: 700, fontSize: '1.2rem', textAlign: 'center', marginTop: 20 }}>
-          Congratulations! You've reached {targetActor.name} in {hopsMade + 1} moves!
-        </div>
-      )}
-      {gameStatus === 'lost' && (
-        <div className="lose-message" style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem', textAlign: 'center', marginTop: 20 }}>
-          Game Over! You've used all {maxHops} moves without reaching {targetActor.name}.
-        </div>
-      )}
     </div>
   );
 };

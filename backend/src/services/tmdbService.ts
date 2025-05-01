@@ -164,7 +164,7 @@ export const getPopularActors = async (filterByWestern: boolean = true): Promise
           id: result!.actor.id,
           name: result!.actor.name,
           profile_path: result!.actor.profile_path,
-        }));
+    }));
       
       console.log(`Found ${validActors.length} valid actors on page ${currentPage}`);
       allActors.push(...validActors);
