@@ -65,9 +65,9 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
   }
 };
 
-export const getPopularActors = async (): Promise<Actor[]> => {
+export const getPopularActors = async (filterByWestern: boolean = true): Promise<Actor[]> => {
   try {
-    const response = await api.get<Actor[]>('/popular-actors');
+    const response = await api.get<Actor[]>(`/popular-actors?filterByWestern=${filterByWestern}`);
     return response.data;
   } catch (error) {
     console.error('Error fetching popular actors:', error);

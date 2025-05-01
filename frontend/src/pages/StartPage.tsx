@@ -17,7 +17,7 @@ const StartPage: React.FC = () => {
     const fetchActors = async () => {
       try {
         setLoading(true);
-        const actors = await getPopularActors();
+        const actors = await getPopularActors(state.settings.filterByWestern);
         setAllActors(actors);
         setLoading(false);
       } catch (err) {
@@ -27,7 +27,7 @@ const StartPage: React.FC = () => {
     };
 
     fetchActors();
-  }, []);
+  }, [state.settings.filterByWestern]);
 
   useEffect(() => {
     // If we don't have a target actor, redirect to home

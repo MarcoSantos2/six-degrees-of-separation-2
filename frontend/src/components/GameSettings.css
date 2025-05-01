@@ -1,0 +1,40 @@
+.settings-panel {
+  background: var(--bg-panel);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  border: 1px solid var(--border);
+}
+
+.settings-panel h3 {
+  margin: 0 0 1rem 0;
+  color: var(--text-primary);
+}
+
+.setting-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.setting-item label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.setting-item input[type="checkbox"] {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+.setting-description {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding-left: 1.7rem;
+} 

@@ -62,10 +62,12 @@ export const getCast = async (req: Request, res: Response): Promise<void> => {
 };
 
 // GET /api/popular-actors - returns a list of popular actors
-export const getPopularActorsList = async (_req: Request, res: Response): Promise<void> => {
+export const getPopularActorsList = async (req: Request, res: Response): Promise<void> => {
   try {
     console.log('Getting popular actors...');
-    const actors = await getPopularActors();
+    const filterByWestern = req.query.filterByWestern !== 'false'; // Default to true if not specified
+    console.log('Filter by Western countries:', filterByWestern);
+    const actors = await getPopularActors(filterByWestern);
     console.log('Popular actors response:', actors.length);
     res.json(actors);
   } catch (error) {

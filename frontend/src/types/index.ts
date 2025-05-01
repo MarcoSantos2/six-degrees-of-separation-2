@@ -24,7 +24,14 @@ export interface GamePath {
 
 export interface GameState {
   targetActor: Actor | null;
-  currentPath: GamePath[];
+  currentPath: Array<{
+    actor: Actor;
+    movie?: Movie;
+  }>;
   maxHops: number;
   gameStatus: 'not_started' | 'in_progress' | 'won' | 'lost';
+  settings: {
+    filterByWestern: boolean;
+    theme: 'light' | 'dark';
+  };
 } 

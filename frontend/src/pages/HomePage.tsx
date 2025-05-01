@@ -48,8 +48,14 @@ const HomePage: React.FC = () => {
     }
   }, [state.targetActor, setTargetActor]); // Added dependencies
 
-  const handleStartGame = () => {
-    navigate('/start');
+  const handleStartGame = async () => {
+    try {
+      const targetActor = await getTargetActor();
+      setTargetActor(targetActor);
+      navigate('/start');
+    } catch (error) {
+      console.error('Failed to start game:', error);
+    }
   };
 
   if (loading) {
@@ -66,27 +72,27 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="home-page">
-      <h1>Six Degrees of Movie Separation</h1>
-      <div className="game-intro">
-        <p
-          style={{
-            color: (document.documentElement.getAttribute('data-theme') === 'dark') ? '#000' : 'var(--text-main)'
-          }}
-        >
-          Connect from any starting actor to the target actor in 6 or fewer hops.
-          Select a movie, then an actor from that movie, then another movie that actor appears in, and so on.
-        </p>
-        <p
-          style={{
-            color: (document.documentElement.getAttribute('data-theme') === 'dark') ? '#000' : 'var(--text-main)'
-          }}
-        >
-          You win if you reach the target actor within 6 moves!
-        </p>
-      </div>
+    <div className="home-page" style={{ maxWidth: 800, margin: '0 auto', padding: '2em', textAlign: 'center' }}>
+      <h1 style={{ fontSize: '3rem', marginBottom: '0.5em', letterSpacing: '0.08em' }}>Six Degrees of Separation</h1>
+      <p style={{ fontSize: '1.2rem', marginBottom: '2em', color: 'var(--text-secondary)' }}>
+        Connect any two actors through their movie collaborations
+      </p>
 
-      <button className="start-game-button" onClick={handleStartGame}>
+      <button
+        onClick={handleStartGame}
+        className="btn"
+        style={{
+          background: 'var(--color-cinema-red)',
+          color: 'white',
+          padding: '1em 2em',
+          fontSize: '1.2rem',
+          fontWeight: 'bold',
+          borderRadius: '8px',
+          border: 'none',
+          cursor: 'pointer',
+          transition: 'transform 0.2s',
+        }}
+      >
         Start Game
       </button>
     </div>

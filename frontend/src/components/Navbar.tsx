@@ -1,15 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import './styles.css';
+import React, { useState } from 'react';
+import SettingsModal from './SettingsModal';
+import './Navbar.css';
 import { Link } from 'react-router-dom';
 
-const LOGO_PATH = '/logos/logo.png';
+const LOGO_PATH = '/logos/logo2.png';
 
 const Navbar: React.FC = () => {
-  const [darkMode, setDarkMode] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
-  }, [darkMode]);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   return (
     <nav className="navbar" style={{
@@ -33,37 +30,44 @@ const Navbar: React.FC = () => {
           textTransform: 'uppercase',
           fontWeight: 700
         }}>
-          6 Degrees of Separation
+          Degrees of Separation
         </span>
       </Link>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1.5em' }}>
-        <button
-          aria-label={darkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          onClick={() => setDarkMode(dm => !dm)}
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <button 
+          className="icon-button"
+          onClick={() => setIsSettingsOpen(true)}
+          aria-label="Open Settings"
           style={{
             background: 'none',
             border: 'none',
             cursor: 'pointer',
             fontSize: '1.5rem',
             color: 'var(--text-main)',
-            marginRight: '0.5em',
             display: 'flex',
             alignItems: 'center',
             padding: 0
           }}
         >
-          {darkMode ? (
-            // Moon icon
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z" /></svg>
-          ) : (
-            // Sun icon
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="5" /><path d="M12 1v2m0 18v2m11-11h-2M3 12H1m16.95 6.95-1.41-1.41M6.46 6.46 5.05 5.05m12.02 0-1.41 1.41M6.46 17.54l-1.41 1.41" /></svg>
-          )}
-        </button>
-        <button className="btn" style={{ fontSize: '1rem', padding: '0.5em 1.2em' }}>
-          Profile / Logout
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
         </button>
       </div>
+      <SettingsModal 
+        isOpen={isSettingsOpen} 
+        onClose={() => setIsSettingsOpen(false)} 
+      />
     </nav>
   );
 };
