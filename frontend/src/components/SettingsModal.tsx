@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import './SettingsModal.css';
 
@@ -9,6 +10,8 @@ interface SettingsModalProps {
 
 const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
   const { state, updateSettings } = useGame();
+  const location = useLocation();
+  const isStartPage = location.pathname === '/';
 
   const handlePopularActorsToggle = (event: React.ChangeEvent<HTMLInputElement>) => {
     updateSettings({
@@ -23,6 +26,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
     updateSettings({
       ...state.settings,
       theme: newTheme
+    });
+  };
+
+  const handleMaxHopsChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newMaxHops = parseInt(event.target.value);
+    updateSettings({
+      ...state.settings,
+      maxHops: newMaxHops
     });
   };
 
@@ -48,7 +59,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
               </div>
               
               <div className="settings-section">
-                <h3 className="settings-section-title">Too easy? Try playing with these settings</h3>
+                <h3 className="settings-section-title">Too easy? Try playing around with these settings</h3>
                 <div className="settings-group">
                   <label className="settings-toggle">
                     <input
@@ -58,6 +69,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     />
                     <span className="toggle-label">Only display the most popular actors</span>
                   </label>
+                </div>
+                <div className="settings-group">
+                  <div className="select-container">
+                    <label className="select-label" htmlFor="maxHops">Max hops:</label>
+                    <select
+                      id="maxHops"
+                      className={`hops-select ${!isStartPage ? 'disabled' : ''}`}
+                      value={state.settings.maxHops}
+                      onChange={handleMaxHopsChange}
+                      disabled={!isStartPage}
+                    >
+                      {[6, 5, 4, 3, 2, 1].map((num) => (
+                        <option key={num} value={num}>
+                          {num}
+                        </option>
+                      ))}
+                    </select>
+                    {!isStartPage && (
+                      <div className="settings-hint">
+                        Max hops can only be changed before starting the game
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

@@ -3,7 +3,7 @@ import SettingsModal from './SettingsModal';
 import './Navbar.css';
 import { Link } from 'react-router-dom';
 
-const LOGO_PATH = '/logos/logo2.png';
+const LOGO_PATH = '/logos/logo2-nobg.png';
 
 const Navbar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);

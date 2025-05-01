@@ -33,5 +33,6 @@ export interface GameState {
   settings: {
     filterByWestern: boolean;
     theme: 'light' | 'dark';
+    maxHops: number;
   };
 } 
