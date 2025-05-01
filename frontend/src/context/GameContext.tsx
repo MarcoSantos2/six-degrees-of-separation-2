@@ -7,15 +7,20 @@ const initialState: GameState = {
   currentPath: [],
   maxHops: 6,
   gameStatus: 'not_started',
+  settings: {
+    filterByWestern: true,
+    theme: 'light'
+  }
 };
 
 // Action types
 type Action =
   | { type: 'SET_TARGET_ACTOR'; payload: Actor }
-  | { type: 'START_GAME'; payload: Actor }
+  | { type: 'START_GAME'; payload: { targetActor: Actor; startingActor: Actor } }
   | { type: 'SELECT_MOVIE'; payload: Movie }
   | { type: 'SELECT_ACTOR'; payload: Actor }
-  | { type: 'RESET_GAME' };
+  | { type: 'RESET_GAME' }
+  | { type: 'UPDATE_SETTINGS'; payload: GameState['settings'] };
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
@@ -35,19 +40,18 @@ const gameReducer = (state: GameState, action: Action): GameState => {
     case 'START_GAME':
       result = {
         ...state,
-        currentPath: [{ actor: action.payload }],
+        targetActor: action.payload.targetActor,
+        currentPath: [{ actor: action.payload.startingActor }],
         gameStatus: 'in_progress',
       };
       break;
     case 'SELECT_MOVIE':
       result = {
         ...state,
-        currentPath: state.currentPath.map((item, index) => {
-          if (index === state.currentPath.length - 1) {
-            return { ...item, movie: action.payload };
-          }
-          return item;
-        }),
+        currentPath: [
+          ...state.currentPath.slice(0, -1),
+          { ...state.currentPath[state.currentPath.length - 1], movie: action.payload },
+        ],
       };
       break;
     case 'SELECT_ACTOR':
@@ -92,6 +96,12 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         targetActor: state.targetActor,
       };
       break;
+    case 'UPDATE_SETTINGS':
+      result = {
+        ...state,
+        settings: action.payload
+      };
+      break;
     default:
       result = state;
   }
@@ -106,6 +116,7 @@ interface GameContextProps {
   selectMovie: (movie: Movie) => void;
   selectActor: (actor: Actor) => void;
   resetGame: () => void;
+  updateSettings: (settings: GameState['settings']) => void;
 }
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
@@ -119,9 +130,13 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'SET_TARGET_ACTOR', payload: actor });
   }, []);
 
-  const startGame = useCallback((actor: Actor) => {
-    dispatch({ type: 'START_GAME', payload: actor });
-  }, []);
+  const startGame = useCallback((startingActor: Actor) => {
+    if (!state.targetActor) {
+      console.error('No target actor set');
+      return;
+    }
+    dispatch({ type: 'START_GAME', payload: { targetActor: state.targetActor, startingActor } });
+  }, [state.targetActor]);
 
   const selectMovie = useCallback((movie: Movie) => {
     dispatch({ type: 'SELECT_MOVIE', payload: movie });
@@ -135,6 +150,10 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'RESET_GAME' });
   }, []);
 
+  const updateSettings = useCallback((settings: GameState['settings']) => {
+    dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
+  }, []);
+
   // Memoize the context value to prevent unnecessary rerenders
   const contextValue = React.useMemo(
     () => ({
@@ -144,8 +163,9 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       selectMovie,
       selectActor,
       resetGame,
+      updateSettings,
     }),
-    [state, setTargetActor, startGame, selectMovie, selectActor, resetGame]
+    [state, setTargetActor, startGame, selectMovie, selectActor, resetGame, updateSettings]
   );
 
   return (

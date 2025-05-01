@@ -1,3 +1,35 @@
+:root[data-theme="light"] {
+  --bg-panel: #ffffff;
+  --bg-hover: #f5f5f5;
+  --text-main: #333333;
+  --text-secondary: #666666;
+  --border: #e0e0e0;
+  --color-cinema-red: #e50914;
+  --color-spotlight-gold: #ffd700;
+  --color-midnight-black: #000000;
+  --color-white-frame: #ffffff;
+  --button-primary-bg: #e50914;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: #f5f5f5;
+  --button-secondary-text: #333333;
+}
+
+:root[data-theme="dark"] {
+  --bg-panel: #1a1a1a;
+  --bg-hover: #2d2d2d;
+  --text-main: #ffffff;
+  --text-secondary: #b3b3b3;
+  --border: #333333;
+  --color-cinema-red: #ff1a1a;
+  --color-spotlight-gold: #ffd700;
+  --color-midnight-black: #ffffff;
+  --color-white-frame: #2d2d2d;
+  --button-primary-bg: #ff1a1a;
+  --button-primary-text: #ffffff;
+  --button-secondary-bg: #2d2d2d;
+  --button-secondary-text: #ffffff;
+}
+
 /* Card components */
 .card {
   width: 180px;

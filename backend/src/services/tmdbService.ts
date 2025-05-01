@@ -91,7 +91,7 @@ interface ActorDetails {
   known_for_department: string;
 }
 
-export const getPopularActors = async (): Promise<Actor[]> => {
+export const getPopularActors = async (filterByWestern: boolean = true): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
     const MAX_ACTORS = 20;
     const allActors: Actor[] = [];
@@ -126,7 +126,7 @@ export const getPopularActors = async (): Promise<Actor[]> => {
 
       const actorDetails = await Promise.all(actorDetailsPromises);
       
-      // Filter actors based on their place of birth
+      // Filter actors based on their place of birth if filterByWestern is true
       const validActors = actorDetails
         .filter(result => {
           if (!result) return false;
@@ -139,6 +139,11 @@ export const getPopularActors = async (): Promise<Actor[]> => {
           if (!details.place_of_birth) {
             console.log(`No place of birth for ${actor.name}, skipping`);
             return false;
+          }
+
+          // If not filtering by Western countries, accept all actors with valid place of birth
+          if (!filterByWestern) {
+            return true;
           }
 
           // Split place of birth into parts (city, state, country)
