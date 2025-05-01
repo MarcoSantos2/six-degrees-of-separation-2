@@ -50,23 +50,134 @@ const rateLimitRequest = async <T>(requestFn: () => Promise<T>): Promise<T> => {
   return requestFn();
 };
 
+// List of Western country codes and their common names
+const WESTERN_COUNTRIES = {
+  'USA': ['USA', 'UNITED STATES', 'UNITED STATES OF AMERICA', 'U.S.A.', 'U.S.'],
+  'GB': ['GB', 'UK', 'UNITED KINGDOM', 'GREAT BRITAIN', 'ENGLAND'],
+  'CA': ['CA', 'CANADA'],
+  'AU': ['AU', 'AUSTRALIA'],
+  'NZ': ['NZ', 'NEW ZEALAND'],
+  'IE': ['IE', 'IRELAND'],
+  'FR': ['FR', 'FRANCE'],
+  'DE': ['DE', 'GERMANY'],
+  'IT': ['IT', 'ITALY'],
+  'ES': ['ES', 'SPAIN'],
+  'PT': ['PT', 'PORTUGAL'],
+  'NL': ['NL', 'NETHERLANDS', 'HOLLAND'],
+  'BE': ['BE', 'BELGIUM'],
+  'SE': ['SE', 'SWEDEN'],
+  'NO': ['NO', 'NORWAY'],
+  'DK': ['DK', 'DENMARK'],
+  'FI': ['FI', 'FINLAND'],
+  'CH': ['CH', 'SWITZERLAND'],
+  'AT': ['AT', 'AUSTRIA'],
+  'MX': ['MX', 'MEXICO']
+};
+
 interface PopularActorsResponse {
   results: {
     id: number;
     name: string;
     profile_path: string;
+    known_for_department: string;
   }[];
+}
+
+interface ActorDetails {
+  id: number;
+  name: string;
+  profile_path: string;
+  place_of_birth: string;
+  known_for_department: string;
 }
 
 export const getPopularActors = async (): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
-    const randomPage = Math.floor(Math.random() * 20) + 1;
-    const response = await tmdbApi.get<PopularActorsResponse>(`/person/popular?page=${randomPage}`);
-    return response.data.results.map(actor => ({
-      id: actor.id,
-      name: actor.name,
-      profile_path: actor.profile_path,
-    }));
+    const MAX_ACTORS = 20;
+    const allActors: Actor[] = [];
+    let currentPage = Math.floor(Math.random() * 10) + 1; // Random page between 1 and 10
+    
+    while (allActors.length < MAX_ACTORS && currentPage <= 11) {
+      console.log(`Fetching page ${currentPage}...`);
+      const response = await tmdbApi.get<PopularActorsResponse>(`/person/popular`, {
+        params: {
+          page: currentPage,
+        }
+      });
+      
+      // Get details for each actor to check their nationality
+      const actorDetailsPromises = response.data.results
+        .filter(actor => 
+          actor.profile_path && // Must have a profile picture
+          actor.known_for_department === 'Acting' // Must be primarily an actor
+        )
+        .map(async (actor) => {
+          try {
+            const details = await tmdbApi.get<ActorDetails>(`/person/${actor.id}`);
+            return {
+              actor,
+              details: details.data
+            };
+          } catch (error) {
+            console.error(`Error fetching details for actor ${actor.id}:`, error);
+            return null;
+          }
+        });
+
+      const actorDetails = await Promise.all(actorDetailsPromises);
+      
+      // Filter actors based on their place of birth
+      const validActors = actorDetails
+        .filter(result => {
+          if (!result) return false;
+          const { details, actor } = result;
+          
+          // Debug logging
+          console.log(`Checking actor: ${actor.name}`);
+          console.log(`Place of birth: ${details.place_of_birth}`);
+          
+          if (!details.place_of_birth) {
+            console.log(`No place of birth for ${actor.name}, skipping`);
+            return false;
+          }
+
+          // Split place of birth into parts (city, state, country)
+          const placeParts = details.place_of_birth.split(',').map(part => part.trim().toUpperCase());
+          console.log('Place parts:', placeParts);
+
+          // Check if any part matches a Western country
+          const isWestern = Object.values(WESTERN_COUNTRIES).some(countryNames => 
+            countryNames.some(countryName => 
+              placeParts.some(part => part === countryName)
+            )
+          );
+
+          console.log(`Is Western: ${isWestern}`);
+          return isWestern;
+        })
+        .map(result => ({
+          id: result!.actor.id,
+          name: result!.actor.name,
+          profile_path: result!.actor.profile_path,
+        }));
+      
+      console.log(`Found ${validActors.length} valid actors on page ${currentPage}`);
+      allActors.push(...validActors);
+      currentPage++;
+    }
+    
+    // If we have more than 20 actors, randomly select 20
+    if (allActors.length > MAX_ACTORS) {
+      const selectedActors = allActors
+        .sort(() => Math.random() - 0.5) // Shuffle the array
+        .slice(0, MAX_ACTORS); // Take first 20
+      
+      console.log('Final selected actors:', selectedActors.map(a => a.name));
+      return selectedActors;
+    }
+    
+    console.log('Final actors (less than 20):', allActors.map(a => a.name));
+    return allActors;
   });
 };
 
