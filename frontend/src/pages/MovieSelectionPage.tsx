@@ -12,7 +12,7 @@ const MovieSelectionPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const { state, selectMovie } = useGame();
+  const { state, selectMovie, pauseTimer, resumeTimer } = useGame();
   const navigate = useNavigate();
 
   const currentActor = state.currentPath[state.currentPath.length - 1]?.actor;
@@ -26,17 +26,23 @@ const MovieSelectionPage: React.FC = () => {
     const fetchMovies = async () => {
       try {
         setLoading(true);
+        if (state.settings.timerEnabled) {
+          pauseTimer();
+        }
         const movieData = await getMoviesByActor(currentActor.id);
         setAllMovies(movieData);
-        setLoading(false);
       } catch (err) {
         setError('Failed to fetch movies. Please try again later.');
+      } finally {
         setLoading(false);
+        if (state.settings.timerEnabled) {
+          resumeTimer();
+        }
       }
     };
 
     fetchMovies();
-  }, [currentActor, navigate]);
+  }, [currentActor, navigate, state.settings.timerEnabled, pauseTimer, resumeTimer]);
 
   const handleSelectMovie = (movie: Movie) => {
     selectMovie(movie);
