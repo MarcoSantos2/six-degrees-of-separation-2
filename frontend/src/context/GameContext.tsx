@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from 'react';
 import { Actor, Movie, GameState } from '../types';
 
 // Initial state
@@ -10,7 +10,14 @@ const initialState: GameState = {
   settings: {
     filterByWestern: true,
     theme: 'light',
-    maxHops: 6
+    maxHops: 6,
+    maxHopsEnabled: false,
+    timerEnabled: false,
+    timerDuration: 7 // in minutes
+  },
+  timer: {
+    remainingTime: 0,
+    isRunning: false
   }
 };
 
@@ -21,7 +28,12 @@ type Action =
   | { type: 'SELECT_MOVIE'; payload: Movie }
   | { type: 'SELECT_ACTOR'; payload: Actor }
   | { type: 'RESET_GAME' }
-  | { type: 'UPDATE_SETTINGS'; payload: GameState['settings'] };
+  | { type: 'UPDATE_SETTINGS'; payload: GameState['settings'] }
+  | { type: 'SET_TIMER_DURATION'; payload: number }
+  | { type: 'TOGGLE_TIMER' }
+  | { type: 'UPDATE_TIMER'; payload: number }
+  | { type: 'STOP_TIMER' }
+  | { type: 'START_TIMER' };
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
@@ -42,6 +54,10 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         targetActor: action.payload.targetActor,
         currentPath: [{ actor: action.payload.startingActor }],
         gameStatus: 'in_progress',
+        timer: {
+          remainingTime: state.settings.timerEnabled ? state.settings.timerDuration * 60 : 0,
+          isRunning: state.settings.timerEnabled
+        }
       };
 
     case 'SELECT_MOVIE':
@@ -79,7 +95,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       const totalActors = updatedPath.filter(item => item.actor).length;
 
       // Check lose condition (max moves reached)
-      if (totalActors >= state.settings.maxHops) {
+      if (state.settings.maxHopsEnabled && totalActors >= state.settings.maxHops) {
         return {
           ...state,
           currentPath: updatedPath,
@@ -96,13 +112,59 @@ const gameReducer = (state: GameState, action: Action): GameState => {
     case 'RESET_GAME':
       return {
         ...initialState,
-        targetActor: state.targetActor,
+        settings: state.settings // Preserve settings
       };
 
     case 'UPDATE_SETTINGS':
       return {
         ...state,
         settings: action.payload
+      };
+
+    case 'SET_TIMER_DURATION':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          timerDuration: action.payload
+        }
+      };
+
+    case 'TOGGLE_TIMER':
+      return {
+        ...state,
+        settings: {
+          ...state.settings,
+          timerEnabled: !state.settings.timerEnabled
+        }
+      };
+
+    case 'UPDATE_TIMER':
+      return {
+        ...state,
+        timer: {
+          ...state.timer,
+          remainingTime: action.payload,
+          isRunning: action.payload > 0
+        }
+      };
+
+    case 'STOP_TIMER':
+      return {
+        ...state,
+        timer: {
+          remainingTime: 0,
+          isRunning: false
+        }
+      };
+
+    case 'START_TIMER':
+      return {
+        ...state,
+        timer: {
+          remainingTime: state.settings.timerEnabled ? state.settings.timerDuration * 60 : 0,
+          isRunning: state.settings.timerEnabled
+        }
       };
 
     default:
@@ -113,12 +175,15 @@ const gameReducer = (state: GameState, action: Action): GameState => {
 // Create context
 interface GameContextProps {
   state: GameState;
+  dispatch: React.Dispatch<Action>;
   setTargetActor: (actor: Actor) => void;
   startGame: (actor: Actor) => void;
   selectMovie: (movie: Movie) => void;
   selectActor: (actor: Actor) => void;
   resetGame: () => void;
   updateSettings: (settings: GameState['settings']) => void;
+  setTimerDuration: (minutes: number) => void;
+  toggleTimer: () => void;
 }
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
@@ -156,18 +221,52 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'UPDATE_SETTINGS', payload: settings });
   }, []);
 
+  const setTimerDuration = useCallback((minutes: number) => {
+    dispatch({ type: 'SET_TIMER_DURATION', payload: minutes });
+  }, []);
+
+  const toggleTimer = useCallback(() => {
+    dispatch({ type: 'TOGGLE_TIMER' });
+  }, []);
+
+  // Add timer effect
+  useEffect(() => {
+    let intervalId: number;
+
+    if (state.timer.isRunning && state.timer.remainingTime > 0) {
+      intervalId = setInterval(() => {
+        const newTime = state.timer.remainingTime - 1;
+        dispatch({ type: 'UPDATE_TIMER', payload: newTime });
+
+        if (newTime <= 0) {
+          dispatch({ type: 'STOP_TIMER' });
+          dispatch({ type: 'SELECT_ACTOR', payload: state.targetActor! }); // Force game over
+        }
+      }, 1000);
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId);
+      }
+    };
+  }, [state.timer.isRunning, state.timer.remainingTime, state.targetActor]);
+
   // Memoize the context value to prevent unnecessary rerenders
   const contextValue = React.useMemo(
     () => ({
       state,
+      dispatch,
       setTargetActor,
       startGame,
       selectMovie,
       selectActor,
       resetGame,
       updateSettings,
+      setTimerDuration,
+      toggleTimer
     }),
-    [state, setTargetActor, startGame, selectMovie, selectActor, resetGame, updateSettings]
+    [state, dispatch, setTargetActor, startGame, selectMovie, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer]
   );
 
   return (
