@@ -8,7 +8,6 @@ import CastSelectionPage from './pages/CastSelectionPage';
 import EndPage from './pages/EndPage';
 import Navbar from './components/Navbar';
 import { ToastProvider } from './components/ToastProvider';
-import Modal from './components/Modal';
 
 const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
