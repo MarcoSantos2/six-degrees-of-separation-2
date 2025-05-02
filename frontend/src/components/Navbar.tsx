@@ -28,8 +28,6 @@ const Navbar: React.FC = () => {
       padding: '0.5em 2em',
       background: 'var(--bg-panel)',
       borderBottom: '1px solid var(--border)',
-      position: 'sticky',
-      top: 0,
       zIndex: 1000
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>

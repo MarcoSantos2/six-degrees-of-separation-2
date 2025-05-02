@@ -75,27 +75,25 @@ const StartPage: React.FC = () => {
   }
 
   return (
-    <div className="start-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
+    <div className="start-page panel" style={{ 
+      maxWidth: 900, 
+      margin: '2em auto', 
+      boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+      position: 'relative',  // Add this to create a new stacking context
+      zIndex: 1  // Lower z-index for the container
+    }}>
       <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Choose a Starting Actor</h1>
       <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
         Connect actors to the target by hopping through movies and co-stars. How few steps can you do it in?
       </p>
       <GameStatus />
-      <div className="target-info" style={{ textAlign: 'center', marginBottom: '1.5em' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1em', marginBottom: '1em' }}>
-          <img 
-            src={state.targetActor.profile_path ? `https://image.tmdb.org/t/p/w200${state.targetActor.profile_path}` : 'https://placehold.co/200x300?text=No+Image'}
-            alt={state.targetActor.name}
-            style={{ width: 100, height: 140, objectFit: 'cover', borderRadius: 8, background: '#eee', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
-          />
-          <div>
-            <span style={{ fontWeight: 700, color: 'var(--text-secondary)', fontSize: '1.1rem' }}>Target Actor: </span>
-            <span className="highlight" style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem' }}>{state.targetActor.name}</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
+      <div className="search-container" style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        marginBottom: '1.5em',
+        position: 'relative',  // Add this to ensure proper stacking
+        zIndex: 2  // Higher z-index than the grid container
+      }}>
         <input
           type="text"
           placeholder="Filter actors..."
@@ -132,7 +130,9 @@ const StartPage: React.FC = () => {
         gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
         gap: '1.5em',
         margin: '0 auto',
-        maxWidth: 800
+        maxWidth: 800,
+        position: 'relative',  // Add this to ensure proper stacking
+        zIndex: 1  // Same z-index as parent container
       }}>
         {filteredActors.map(actor => (
           <ActorCard
