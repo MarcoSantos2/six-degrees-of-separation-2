@@ -124,11 +124,10 @@
 }
 
 .settings-section-title {
-  color: var(--text-secondary);
+  color: black;
   font-size: 0.9rem;
   font-weight: 600;
   margin-bottom: 1em;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
@@ -182,5 +181,31 @@
   color: var(--text-secondary);
   font-style: italic;
   margin-left: 8px;
+}
+
+.tooltip-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  color: var(--bg-panel);
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 8px;
+  cursor: help;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.tooltip-icon:hover {
+  opacity: 1;
+}
+
+.tooltip-icon:focus {
+  outline: 2px solid var(--color-cinema-red);
+  outline-offset: 2px;
 }
  

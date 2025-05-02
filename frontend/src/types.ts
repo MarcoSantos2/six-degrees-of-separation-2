@@ -1,13 +1,7 @@
-export interface ActorImage {
-  file_path: string;
-  vote_count: number;
-}
-
 export interface Actor {
   id: number;
   name: string;
-  profile_path: string;
-  images?: ActorImage[];
+  profile_path: string | null;
 }
 
 export interface Movie {
@@ -17,24 +11,15 @@ export interface Movie {
   release_date: string;
 }
 
-export interface GamePath {
-  actor: Actor;
-  movie?: Movie;
-}
-
 export interface GameState {
   targetActor: Actor | null;
-  currentPath: Array<{
-    actor: Actor;
-    movie?: Movie;
-  }>;
+  currentPath: Array<{ actor?: Actor; movie?: Movie }>;
   maxHops: number;
   gameStatus: 'not_started' | 'in_progress' | 'won' | 'lost';
   settings: {
     filterByWestern: boolean;
     theme: 'light' | 'dark';
     maxHops: number;
-    maxHopsEnabled: boolean;
     timerEnabled: boolean;
     timerDuration: number;
   };

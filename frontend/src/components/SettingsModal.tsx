@@ -72,26 +72,90 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                 </div>
                 <div className="settings-group">
                   <div className="select-container">
-                    <label className="select-label" htmlFor="maxHops">Max hops:</label>
-                    <select
-                      id="maxHops"
-                      className={`hops-select ${!isStartPage ? 'disabled' : ''}`}
-                      value={state.settings.maxHops}
-                      onChange={handleMaxHopsChange}
-                      disabled={!isStartPage}
-                    >
-                      {[6, 5, 4, 3, 2, 1].map((num) => (
-                        <option key={num} value={num}>
-                          {num}
-                        </option>
-                      ))}
-                    </select>
-                    {!isStartPage && (
-                      <div className="settings-hint">
-                        Max hops can only be changed before starting the game
-                      </div>
-                    )}
+                    <label className="settings-toggle">
+                      <input
+                        type="checkbox"
+                        checked={state.settings.maxHopsEnabled}
+                        onChange={() => {
+                          updateSettings({
+                            ...state.settings,
+                            maxHopsEnabled: !state.settings.maxHopsEnabled
+                          });
+                        }}
+                      />
+                      <span className="toggle-label">
+                        Max Hops Limit
+                        <span 
+                          className="tooltip-icon" 
+                          title="A hop is one complete move: selecting an actor and then a movie they starred in. For example, going from Actor A → Movie → Actor B counts as one hop."
+                        >
+                          ?
+                        </span>
+                      </span>
+                    </label>
                   </div>
+                  {state.settings.maxHopsEnabled && (
+                    <div className="select-container" style={{ marginTop: '1em' }}>
+                      <label className="select-label" htmlFor="maxHops">Max hops:</label>
+                      <select
+                        id="maxHops"
+                        className={`hops-select ${!isStartPage ? 'disabled' : ''}`}
+                        value={state.settings.maxHops}
+                        onChange={handleMaxHopsChange}
+                        disabled={!isStartPage}
+                      >
+                        {[6, 5, 4, 3, 2, 1].map((num) => (
+                          <option key={num} value={num}>
+                            {num}
+                          </option>
+                        ))}
+                      </select>
+                      {!isStartPage && (
+                        <div className="settings-hint">
+                          Max hops can only be changed before starting the game
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="settings-group">
+                  <div className="select-container">
+                    <label className="settings-toggle">
+                      <input
+                        type="checkbox"
+                        checked={state.settings.timerEnabled}
+                        onChange={() => {
+                          updateSettings({
+                            ...state.settings,
+                            timerEnabled: !state.settings.timerEnabled
+                          });
+                        }}
+                      />
+                      <span className="toggle-label">Enable Timer</span>
+                    </label>
+                  </div>
+                  {state.settings.timerEnabled && (
+                    <div className="select-container" style={{ marginTop: '1em' }}>
+                      <label className="select-label" htmlFor="timerDuration">Timer Duration:</label>
+                      <select
+                        id="timerDuration"
+                        className="hops-select"
+                        value={state.settings.timerDuration}
+                        onChange={(e) => {
+                          updateSettings({
+                            ...state.settings,
+                            timerDuration: parseInt(e.target.value)
+                          });
+                        }}
+                      >
+                        {[7, 6, 5, 4, 3, 2, 1].map((num) => (
+                          <option key={num} value={num}>
+                            {num} {num === 1 ? 'minute' : 'minutes'}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

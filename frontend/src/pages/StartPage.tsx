@@ -4,6 +4,7 @@ import { useGame } from '../context/GameContext';
 import ActorCard from '../components/ActorCard';
 import { getPopularActors } from '../services/api';
 import './styles.css';
+import GameStatus from '../components/GameStatus';
 
 const StartPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,6 +80,7 @@ const StartPage: React.FC = () => {
       <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
         Connect actors to the target by hopping through movies and co-stars. How few steps can you do it in?
       </p>
+      <GameStatus />
       <div className="target-info" style={{ textAlign: 'center', marginBottom: '1.5em' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '1em', marginBottom: '1em' }}>
           <img 
@@ -92,6 +94,7 @@ const StartPage: React.FC = () => {
           </div>
         </div>
       </div>
+
       <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
         <input
           type="text"
