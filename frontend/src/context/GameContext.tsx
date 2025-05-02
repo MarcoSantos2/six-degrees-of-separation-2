@@ -33,7 +33,8 @@ type Action =
   | { type: 'TOGGLE_TIMER' }
   | { type: 'UPDATE_TIMER'; payload: number }
   | { type: 'STOP_TIMER' }
-  | { type: 'START_TIMER' };
+  | { type: 'START_TIMER' }
+  | { type: 'TIME_UP' };
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
@@ -167,6 +168,12 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         }
       };
 
+    case 'TIME_UP':
+      return {
+        ...state,
+        gameStatus: 'lost'
+      };
+
     default:
       return state;
   }
@@ -240,7 +247,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
         if (newTime <= 0) {
           dispatch({ type: 'STOP_TIMER' });
-          dispatch({ type: 'SELECT_ACTOR', payload: state.targetActor! }); // Force game over
+          dispatch({ type: 'TIME_UP' });
         }
       }, 1000);
     }
@@ -250,7 +257,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         clearInterval(intervalId);
       }
     };
-  }, [state.timer.isRunning, state.timer.remainingTime, state.targetActor]);
+  }, [state.timer.isRunning, state.timer.remainingTime]);
 
   // Memoize the context value to prevent unnecessary rerenders
   const contextValue = React.useMemo(
