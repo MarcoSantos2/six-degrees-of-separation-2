@@ -17,7 +17,8 @@ const initialState: GameState = {
   },
   timer: {
     remainingTime: 0,
-    isRunning: false
+    isRunning: false,
+    isPaused: false
   }
 };
 
@@ -34,7 +35,9 @@ type Action =
   | { type: 'UPDATE_TIMER'; payload: number }
   | { type: 'STOP_TIMER' }
   | { type: 'START_TIMER' }
-  | { type: 'TIME_UP' };
+  | { type: 'TIME_UP' }
+  | { type: 'PAUSE_TIMER' }
+  | { type: 'RESUME_TIMER' };
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
@@ -57,7 +60,8 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         gameStatus: 'in_progress',
         timer: {
           remainingTime: state.settings.timerEnabled ? state.settings.timerDuration * 60 : 0,
-          isRunning: state.settings.timerEnabled
+          isRunning: state.settings.timerEnabled,
+          isPaused: false
         }
       };
 
@@ -155,7 +159,8 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         ...state,
         timer: {
           remainingTime: 0,
-          isRunning: false
+          isRunning: false,
+          isPaused: false
         }
       };
 
@@ -164,7 +169,8 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         ...state,
         timer: {
           remainingTime: state.settings.timerEnabled ? state.settings.timerDuration * 60 : 0,
-          isRunning: state.settings.timerEnabled
+          isRunning: state.settings.timerEnabled,
+          isPaused: false
         }
       };
 
@@ -172,6 +178,24 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       return {
         ...state,
         gameStatus: 'lost'
+      };
+
+    case 'PAUSE_TIMER':
+      return {
+        ...state,
+        timer: {
+          ...state.timer,
+          isPaused: true
+        }
+      };
+
+    case 'RESUME_TIMER':
+      return {
+        ...state,
+        timer: {
+          ...state.timer,
+          isPaused: false
+        }
       };
 
     default:
@@ -191,6 +215,8 @@ interface GameContextProps {
   updateSettings: (settings: GameState['settings']) => void;
   setTimerDuration: (minutes: number) => void;
   toggleTimer: () => void;
+  pauseTimer: () => void;
+  resumeTimer: () => void;
 }
 
 const GameContext = createContext<GameContextProps | undefined>(undefined);
@@ -240,12 +266,12 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let intervalId: number;
 
-    if (state.timer.isRunning && state.timer.remainingTime > 0) {
+    if (state.timer.isRunning && state.timer.remainingTime > 0 && state.settings.timerEnabled && !state.timer.isPaused) {
       intervalId = setInterval(() => {
         const newTime = state.timer.remainingTime - 1;
         dispatch({ type: 'UPDATE_TIMER', payload: newTime });
 
-        if (newTime <= 0) {
+        if (newTime <= 0 && state.settings.timerEnabled) {
           dispatch({ type: 'STOP_TIMER' });
           dispatch({ type: 'TIME_UP' });
         }
@@ -257,7 +283,16 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
         clearInterval(intervalId);
       }
     };
-  }, [state.timer.isRunning, state.timer.remainingTime]);
+  }, [state.timer.isRunning, state.timer.remainingTime, state.settings.timerEnabled, state.timer.isPaused]);
+
+  // Add pause/resume functions
+  const pauseTimer = useCallback(() => {
+    dispatch({ type: 'PAUSE_TIMER' });
+  }, []);
+
+  const resumeTimer = useCallback(() => {
+    dispatch({ type: 'RESUME_TIMER' });
+  }, []);
 
   // Memoize the context value to prevent unnecessary rerenders
   const contextValue = React.useMemo(
@@ -271,9 +306,11 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       resetGame,
       updateSettings,
       setTimerDuration,
-      toggleTimer
+      toggleTimer,
+      pauseTimer,
+      resumeTimer
     }),
-    [state, dispatch, setTargetActor, startGame, selectMovie, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer]
+    [state, dispatch, setTargetActor, startGame, selectMovie, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer, pauseTimer, resumeTimer]
   );
 
   return (

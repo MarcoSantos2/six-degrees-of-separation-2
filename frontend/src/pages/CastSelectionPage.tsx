@@ -12,30 +12,38 @@ const CastSelectionPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const { state, selectActor } = useGame();
+  const { state, selectActor, pauseTimer, resumeTimer } = useGame();
   const navigate = useNavigate();
 
   const currentMovie = state.currentPath[state.currentPath.length - 1]?.movie;
 
   useEffect(() => {
-    if (!currentMovie) {
-      return;
-    }
-
     const fetchCast = async () => {
+      if (!state.currentPath.length || !state.currentPath[state.currentPath.length - 1].movie) {
+        navigate('/movies');
+        return;
+      }
+
       try {
         setLoading(true);
-        const castData = await getCastByMovie(currentMovie.id);
+        if (state.settings.timerEnabled) {
+          pauseTimer();
+        }
+        const movieId = state.currentPath[state.currentPath.length - 1].movie!.id;
+        const castData = await getCastByMovie(movieId);
         setCast(castData);
-        setLoading(false);
       } catch (err) {
         setError('Failed to fetch cast. Please try again later.');
+      } finally {
         setLoading(false);
+        if (state.settings.timerEnabled) {
+          resumeTimer();
+        }
       }
     };
 
     fetchCast();
-  }, [currentMovie, navigate]);
+  }, [state.currentPath, navigate, state.settings.timerEnabled, pauseTimer, resumeTimer]);
 
   const handleSelectActor = (actor: Actor) => {
     // Check win condition before updating state

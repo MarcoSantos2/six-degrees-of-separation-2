@@ -41,5 +41,6 @@ export interface GameState {
   timer: {
     remainingTime: number;
     isRunning: boolean;
+    isPaused: boolean;
   };
 } 
