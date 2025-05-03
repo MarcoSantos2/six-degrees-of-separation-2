@@ -173,7 +173,7 @@ button:hover {
   color: #95a5a6;
   font-size: 1.5em;
   text-align: center;
-} 
+}
 
 /* Start page */
 .start-page {
@@ -201,4 +201,19 @@ button:hover {
   color: #4263eb;
   font-weight: bold;
   margin-left: 5px;
+}
+
+/* Cast selection page */
+.cast-selection-page {
+  max-width: 900px;
+  margin: 2em auto;
+  padding: 20px;
+}
+
+.cast-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5em;
+  margin: 0 auto;
+  max-width: 800px;
 } 

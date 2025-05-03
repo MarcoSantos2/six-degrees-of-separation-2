@@ -1,0 +1,33 @@
+.actor-card {
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.2s;
+  cursor: pointer;
+  width: 160px;
+  margin: 10px;
+}
+
+.actor-card:hover {
+  transform: scale(1.05);
+}
+
+.actor-image {
+  width: 100%;
+  height: 240px;
+  object-fit: cover;
+}
+
+.actor-info {
+  padding: 12px;
+}
+
+.actor-info h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: center;
+} 

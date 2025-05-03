@@ -1,86 +1,51 @@
+import { Actor, Media, MediaFilter, MediaType } from '../types';
 import axios from 'axios';
-import { Actor, Movie } from '../types';
 
-const api = axios.create({
-  baseURL: '/api',
-});
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-// Add request/response logging
-api.interceptors.request.use(request => {
-  console.log('API Request:', {
-    method: request.method?.toUpperCase(),
-    url: request.url,
-    baseURL: request.baseURL
-  });
-  return request;
-});
-
-api.interceptors.response.use(
-  response => {
-    console.log('API Response:', {
-      status: response.status,
-      url: response.config.url
-    });
-    return response;
-  },
-  error => {
-    console.error('API Error:', error.message);
-    if (error.response) {
-      console.error('Error data:', error.response.data);
-      console.error('Error status:', error.response.status);
-    }
-    return Promise.reject(error);
+// Helper function to handle API responses
+const handleResponse = async (response: Response) => {
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.message || 'Something went wrong');
   }
-);
+  return response.json();
+};
 
+// Get target actor
 export const getTargetActor = async (): Promise<Actor> => {
-  try {
-    console.log('Fetching target actor...');
-    const response = await api.get<Actor>('/target');
-    console.log('Target actor response:', response.data);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching target actor:', error);
-    throw error;
-  }
+  const response = await fetch(`${API_BASE_URL}/target`);
+  if (!response.ok) throw new Error('Failed to fetch target actor');
+  return response.json();
 };
 
-export const getMoviesByActor = async (actorId: number): Promise<Movie[]> => {
-  try {
-    const response = await api.get<Movie[]>(`/movies?actorId=${actorId}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching movies for actor ${actorId}:`, error);
-    throw error;
-  }
+// Get media by actor
+export const getMediaByActor = async (actorId: number, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Media[]> => {
+  const response = await fetch(`${API_BASE_URL}/media?actorId=${actorId}&mediaFilter=${mediaFilter}`);
+  return handleResponse(response);
 };
 
-export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
-  try {
-    const response = await api.get<Actor[]>(`/cast?movieId=${movieId}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching cast for movie ${movieId}:`, error);
-    throw error;
-  }
+// Get cast by media
+export const getCastByMedia = async (mediaId: number, mediaType: MediaType): Promise<Actor[]> => {
+  const response = await fetch(`${API_BASE_URL}/cast?mediaId=${mediaId}&mediaType=${mediaType}`);
+  if (!response.ok) throw new Error('Failed to fetch cast');
+  return response.json();
 };
 
-export const getPopularActors = async (filterByWestern: boolean = true): Promise<Actor[]> => {
-  try {
-    const response = await api.get<Actor[]>(`/popular-actors?filterByWestern=${filterByWestern}`);
-    return response.data;
-  } catch (error) {
-    console.error('Error fetching popular actors:', error);
-    throw error;
-  }
+// Get popular actors
+export const getPopularActors = async (filterByWestern: boolean = true, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Actor[]> => {
+  const response = await axios.get(`${API_BASE_URL}/popular-actors`, {
+    params: {
+      filterByWestern,
+      mediaFilter
+    }
+  });
+  return response.data;
 };
 
-export const searchMovies = async (query: string): Promise<Movie[]> => {
-  try {
-    const response = await api.get<Movie[]>(`/search-movies?query=${encodeURIComponent(query)}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error searching movies with query "${query}":`, error);
-    throw error;
-  }
+// Search media
+export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Media[]> => {
+  const response = await fetch(`${API_BASE_URL}/search-media?query=${encodeURIComponent(query)}&mediaFilter=${mediaFilter}`);
+  if (!response.ok) throw new Error('Failed to search media');
+  return response.json();
 }; 

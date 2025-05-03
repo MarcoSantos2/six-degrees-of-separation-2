@@ -98,49 +98,49 @@ const GameStatus: React.FC = () => {
 
       <div style={{ maxWidth: 700, margin: '0 auto' }}>
         <div className="game-status panel" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '1.5em', borderRadius: 12 }}>
-          {gameStatus === 'in_progress' && (
-            <div className="path-section" style={{ marginTop: 16 }}>
-              <div className="path-header" onClick={togglePath} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
-                <h3 style={{ margin: 0, color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.1rem' }}>Your Path</h3>
-                <button className="toggle-path-btn" style={{ background: 'none', border: 'none', color: 'var(--color-cinema-red)', fontSize: '1.1rem', cursor: 'pointer' }}>
-                  {isPathExpanded ? '▼' : '▶'}
-                </button>
-              </div>
-              {isPathExpanded && (
-                <div className="interactive-path" style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 12 }}>
-                  {currentPath.map((step, index) => (
-                    <div key={index} className="path-step" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div className="path-actor-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+      {gameStatus === 'in_progress' && (
+        <div className="path-section" style={{ marginTop: 16 }}>
+          <div className="path-header" onClick={togglePath} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
+            <h3 style={{ margin: 0, color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.1rem' }}>Your Path</h3>
+            <button className="toggle-path-btn" style={{ background: 'none', border: 'none', color: 'var(--color-cinema-red)', fontSize: '1.1rem', cursor: 'pointer' }}>
+              {isPathExpanded ? '▼' : '▶'}
+            </button>
+          </div>
+          {isPathExpanded && (
+            <div className="interactive-path" style={{ display: 'flex', flexWrap: 'wrap', gap: 16, marginTop: 12 }}>
+              {currentPath.map((step, index) => (
+                <div key={index} className="path-step" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div className="path-actor-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    <img 
+                      src={getActorImageUrl(step.actor)}
+                      alt={step.actor.name}
+                      className="path-actor-image"
+                      style={{ width: 40, height: 60, borderRadius: 6, objectFit: 'cover', background: '#eee' }}
+                    />
+                    <div className="path-actor-name" style={{ color: 'var(--color-midnight-black)', fontWeight: 600, fontSize: '0.95rem', textAlign: 'center' }}>{step.actor.name}</div>
+                  </div>
+                  {step.movie && (
+                    <>
+                      <div className="path-arrow" style={{ color: 'var(--color-cinema-red)', fontSize: '1.5em', margin: '0 4px' }}>→</div>
+                      <div className="path-movie-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
                         <img 
-                          src={getActorImageUrl(step.actor)}
-                          alt={step.actor.name}
-                          className="path-actor-image"
+                          src={getMoviePosterUrl(step.movie)}
+                          alt={step.movie.title}
+                          className="path-movie-image"
                           style={{ width: 40, height: 60, borderRadius: 6, objectFit: 'cover', background: '#eee' }}
                         />
-                        <div className="path-actor-name" style={{ color: 'var(--color-midnight-black)', fontWeight: 600, fontSize: '0.95rem', textAlign: 'center' }}>{step.actor.name}</div>
+                        <div className="path-movie-title" style={{ color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.92rem', textAlign: 'center' }}>{step.movie.title}</div>
                       </div>
-                      {step.movie && (
-                        <>
-                          <div className="path-arrow" style={{ color: 'var(--color-cinema-red)', fontSize: '1.5em', margin: '0 4px' }}>→</div>
-                          <div className="path-movie-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                            <img 
-                              src={getMoviePosterUrl(step.movie)}
-                              alt={step.movie.title}
-                              className="path-movie-image"
-                              style={{ width: 40, height: 60, borderRadius: 6, objectFit: 'cover', background: '#eee' }}
-                            />
-                            <div className="path-movie-title" style={{ color: 'var(--text-secondary)', fontWeight: 500, fontSize: '0.92rem', textAlign: 'center' }}>{step.movie.title}</div>
-                          </div>
-                          <div className="path-arrow" style={{ color: 'var(--color-cinema-red)', fontSize: '1.5em', margin: '0 4px' }}>→</div>
-                        </>
-                      )}
-                    </div>
-                  ))}
+                      <div className="path-arrow" style={{ color: 'var(--color-cinema-red)', fontSize: '1.5em', margin: '0 4px' }}>→</div>
+                    </>
+                  )}
                 </div>
-              )}
+              ))}
             </div>
           )}
         </div>
+      )}
+    </div>
       </div>
     </>
   );

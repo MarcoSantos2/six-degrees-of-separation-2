@@ -62,14 +62,14 @@ describe('Game API Endpoints', () => {
         { id: 1, name: 'Actor 1', profile_path: '/path1' },
         { id: 2, name: 'Actor 2', profile_path: '/path2' },
       ];
-      mockTmdbService.getCastByMovie.mockResolvedValue(mockCast);
+      mockTmdbService.getCastByMedia.mockResolvedValue(mockCast);
 
       // Test endpoint
       const res = await request(app).get('/api/cast?movieId=101');
       
       expect(res.status).toBe(200);
       expect(res.body).toEqual(mockCast);
-      expect(mockTmdbService.getCastByMovie).toHaveBeenCalledWith(101);
+      expect(mockTmdbService.getCastByMedia).toHaveBeenCalledWith(101, 'movie');
     });
 
     it('should return 400 if movieId is missing', async () => {
