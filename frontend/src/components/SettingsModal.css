@@ -16,6 +16,9 @@
   background: var(--bg-panel);
   box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
   animation: slideIn 0.3s ease-out;
+  max-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 @keyframes slideIn {
@@ -63,6 +66,9 @@
 
 .settings-modal-body {
   padding: 20px;
+  overflow-y: auto;
+  flex: 1 1 auto;
+  max-height: calc(100vh - 72px); /* 72px = header height (approx) */
 }
 
 .settings-group {
@@ -133,8 +139,9 @@
 
 .select-container {
   display: flex;
-  align-items: center;
-  gap: 1em;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3em;
   margin-top: 0.5em;
 }
 
@@ -180,7 +187,10 @@
   font-size: 0.85rem;
   color: var(--text-secondary);
   font-style: italic;
-  margin-left: 8px;
+  margin-top: 6px;
+  margin-left: 0;
+  display: block;
+  width: 100%;
 }
 
 .tooltip-icon {

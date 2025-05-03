@@ -49,11 +49,14 @@ const MediaSelectionPage: React.FC = () => {
     navigate('/cast');
   };
 
+  // Deduplicate media by id
+  const uniqueMedia = Array.from(new Map(allMedia.map(media => [media.id, media])).values());
+
   const filteredMedia = searchTerm
-    ? allMedia.filter(media => 
+    ? uniqueMedia.filter(media => 
         (media.title || media.name || '').toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : allMedia;
+    : uniqueMedia;
 
   if (loading) {
     return <div className="loading">Loading media...</div>;

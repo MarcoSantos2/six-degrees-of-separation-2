@@ -17,9 +17,6 @@ const Navbar: React.FC = () => {
     navigate('/');
   };
 
-  // Don't show restart button on end page
-  const showRestartButton = location.pathname !== '/end';
-
   return (
     <nav className="navbar" style={{
       display: 'flex',
@@ -44,37 +41,35 @@ const Navbar: React.FC = () => {
         </span>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-        {showRestartButton && (
-          <button 
-            className="icon-button"
-            onClick={handleRestart}
-            aria-label="Restart Game"
-            style={{
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              fontSize: '1.5rem',
-              color: 'var(--text-main)',
-              display: 'flex',
-              alignItems: 'center',
-              padding: 0
-            }}
+        <button 
+          className="icon-button"
+          onClick={handleRestart}
+          aria-label="Restart Game"
+          style={{
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            fontSize: '1.5rem',
+            color: 'var(--text-main)',
+            display: 'flex',
+            alignItems: 'center',
+            padding: 0
+          }}
+        >
+          <svg 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
           >
-            <svg 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round"
-            >
-              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-              <path d="M3 3v5h5"></path>
-            </svg>
-          </button>
-        )}
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+            <path d="M3 3v5h5"></path>
+          </svg>
+        </button>
         <button 
           className="icon-button"
           onClick={() => setIsSettingsOpen(true)}
