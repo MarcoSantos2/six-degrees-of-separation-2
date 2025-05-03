@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getTargetActor } from '../services/api';
 import { useGame } from '../context/GameContext';
 import './styles.css';
+import ConnectednessWord from '../components/ConnectednessWord';
 
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -124,6 +125,7 @@ const HomePage: React.FC = () => {
       >
         Start Game
       </button>
+      <ConnectednessWord />
     </div>
   );
 };
