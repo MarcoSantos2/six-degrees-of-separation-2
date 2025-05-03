@@ -54,7 +54,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     checked={state.settings?.theme === 'dark'}
                     onChange={handleThemeToggle}
                   />
-                  <span className="toggle-label">Dark Mode</span>
+                  <span className="toggle-label">Dark Mode (coming soon)</span>
                 </label>
               </div>
               
@@ -139,7 +139,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                       <label className="select-label" htmlFor="timerDuration">Timer Duration:</label>
                       <select
                         id="timerDuration"
-                        className="hops-select"
+                        className={`hops-select ${!isStartPage ? 'disabled' : ''}`}
                         value={state.settings.timerDuration}
                         onChange={(e) => {
                           updateSettings({
@@ -147,6 +147,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                             timerDuration: parseInt(e.target.value)
                           });
                         }}
+                        disabled={!isStartPage}
                       >
                         {[7, 6, 5, 4, 3, 2, 1].map((num) => (
                           <option key={num} value={num}>
@@ -154,6 +155,11 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                           </option>
                         ))}
                       </select>
+                      {!isStartPage && (
+                        <div className="settings-hint">
+                          Timer duration can only be changed before starting the game
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -165,7 +171,7 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                     <label className="select-label" htmlFor="mediaFilter">Media Type:</label>
                     <select
                       id="mediaFilter"
-                      className="hops-select"
+                      className={`hops-select ${!isStartPage ? 'disabled' : ''}`}
                       value={state.settings.mediaFilter}
                       onChange={(e) => {
                         updateSettings({
@@ -173,11 +179,17 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                           mediaFilter: e.target.value as 'ALL_MEDIA' | 'MOVIES_ONLY' | 'TV_ONLY'
                         });
                       }}
+                      disabled={!isStartPage}
                     >
                       <option value="ALL_MEDIA">Movies & TV Shows</option>
                       <option value="MOVIES_ONLY">Movies Only</option>
                       <option value="TV_ONLY">TV Shows Only</option>
                     </select>
+                    {!isStartPage && (
+                      <div className="settings-hint">
+                        Media type can only be changed before starting the game
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

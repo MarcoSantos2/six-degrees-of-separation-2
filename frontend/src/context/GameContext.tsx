@@ -53,18 +53,22 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         targetActor: action.payload,
       };
 
-    case 'START_GAME':
+    case 'START_GAME': {
+      const isImmediateLose =
+        (state.settings.maxHops === 1) &&
+        (action.payload.startingActor.id !== action.payload.targetActor.id);
       return {
         ...state,
         targetActor: action.payload.targetActor,
         currentPath: [{ actor: action.payload.startingActor }],
-        gameStatus: 'in_progress',
+        gameStatus: isImmediateLose ? 'lost' : 'in_progress',
         timer: {
           remainingTime: state.settings.timerEnabled ? state.settings.timerDuration * 60 : 0,
           isRunning: state.settings.timerEnabled,
           isPaused: false
         }
       };
+    }
 
     case 'SELECT_MEDIA':
       // Prevent selection if game is already over

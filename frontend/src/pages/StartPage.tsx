@@ -4,7 +4,6 @@ import { useGame } from '../context/GameContext';
 import ActorCard from '../components/ActorCard';
 import { getPopularActors } from '../services/api';
 import './styles.css';
-import GameStatus from '../components/GameStatus';
 
 const StartPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -56,11 +55,14 @@ const StartPage: React.FC = () => {
     navigate('/movies');
   };
 
+  // Deduplicate actors by id
+  const uniqueActors = Array.from(new Map(allActors.map(actor => [actor.id, actor])).values());
+
   const filteredActors = searchTerm
-    ? allActors.filter(actor => 
+    ? uniqueActors.filter(actor => 
         actor.name.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : allActors;
+    : uniqueActors;
 
   if (!state.targetActor) {
     return <div className="loading">Loading game data...</div>;
@@ -86,7 +88,6 @@ const StartPage: React.FC = () => {
       <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
         Connect actors to the target by hopping through movies and co-stars. How few steps can you do it in?
       </p>
-      <GameStatus />
       <div className="search-container" style={{ 
         display: 'flex', 
         justifyContent: 'center', 
