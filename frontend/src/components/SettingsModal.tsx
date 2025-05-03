@@ -158,6 +158,29 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ isOpen, onClose }) => {
                   )}
                 </div>
               </div>
+              <div className="settings-section">
+                <h3 className="settings-section-title">Game Modes</h3>
+                <div className="settings-group">
+                  <div className="select-container">
+                    <label className="select-label" htmlFor="mediaFilter">Media Type:</label>
+                    <select
+                      id="mediaFilter"
+                      className="hops-select"
+                      value={state.settings.mediaFilter}
+                      onChange={(e) => {
+                        updateSettings({
+                          ...state.settings,
+                          mediaFilter: e.target.value as 'ALL_MEDIA' | 'MOVIES_ONLY' | 'TV_ONLY'
+                        });
+                      }}
+                    >
+                      <option value="ALL_MEDIA">Movies & TV Shows</option>
+                      <option value="MOVIES_ONLY">Movies Only</option>
+                      <option value="TV_ONLY">TV Shows Only</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

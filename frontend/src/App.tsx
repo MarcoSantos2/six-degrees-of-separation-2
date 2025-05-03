@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { GameProvider } from './context/GameContext';
 import HomePage from './pages/HomePage';
 import StartPage from './pages/StartPage';
-import MovieSelectionPage from './pages/MovieSelectionPage';
+import MediaSelectionPage from './pages/MediaSelectionPage';
 import CastSelectionPage from './pages/CastSelectionPage';
 import EndPage from './pages/EndPage';
 import Navbar from './components/Navbar';
@@ -52,7 +52,7 @@ const App: React.FC = () => {
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/start" element={<StartPage />} />
-              <Route path="/movies" element={<MovieSelectionPage />} />
+              <Route path="/movies" element={<MediaSelectionPage />} />
               <Route path="/cast" element={<CastSelectionPage />} />
               <Route path="/end" element={<EndPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />

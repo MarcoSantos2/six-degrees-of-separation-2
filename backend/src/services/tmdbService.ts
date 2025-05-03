@@ -1,54 +1,25 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { Actor, Cast, MovieCredits, Movie } from '../types';
+import { Actor, Cast, MovieCredits, Movie, Media, MediaType, TVCredits, TVShow, MediaFilter } from '../types';
+import { rateLimitRequest } from './rateLimiter';
+import { cache } from './cache';
 
 dotenv.config();
 
-const API_KEY = process.env.TMDB_API_KEY;
-const BASE_URL = process.env.TMDB_API_BASE_URL || 'https://api.themoviedb.org/3';
+const TMDB_API_KEY = process.env.TMDB_API_KEY;
+const TMDB_API_BASE_URL = process.env.TMDB_API_BASE_URL;
 
-// Debug info
-console.log('API Key exists:', !!API_KEY);
-console.log('Using BASE_URL:', BASE_URL);
-
-// Validate API key
-if (!API_KEY) {
-  console.warn('⚠️ TMDB_API_KEY is not set in the .env file. Using mock data for development.');
+if (!TMDB_API_KEY) {
+  throw new Error('TMDB_API_KEY is not defined in environment variables');
 }
 
-// Create axios instance with default params
 const tmdbApi = axios.create({
-  baseURL: BASE_URL,
+  baseURL: TMDB_API_BASE_URL,
   params: {
-    api_key: API_KEY,
+    api_key: TMDB_API_KEY,
+    language: 'en-US',
   },
 });
-
-// Rate limiting logic - simple implementation
-const REQUESTS_PER_SECOND = 3;
-let requestsThisSecond = 0;
-let lastRequestTime = Date.now();
-
-const rateLimitRequest = async <T>(requestFn: () => Promise<T>): Promise<T> => {
-  const now = Date.now();
-  if (now - lastRequestTime > 1000) {
-    // Reset if more than a second has passed
-    requestsThisSecond = 0;
-    lastRequestTime = now;
-  }
-
-  if (requestsThisSecond >= REQUESTS_PER_SECOND) {
-    const delay = 1000 - (now - lastRequestTime);
-    if (delay > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delay));
-    }
-    requestsThisSecond = 0;
-    lastRequestTime = Date.now();
-  }
-
-  requestsThisSecond++;
-  return requestFn();
-};
 
 // List of Western country codes and their common names
 const WESTERN_COUNTRIES = {
@@ -80,6 +51,7 @@ interface PopularActorsResponse {
     name: string;
     profile_path: string;
     known_for_department: string;
+    popularity: number;
   }[];
 }
 
@@ -89,9 +61,10 @@ interface ActorDetails {
   profile_path: string;
   place_of_birth: string;
   known_for_department: string;
+  popularity: number;
 }
 
-export const getPopularActors = async (filterByWestern: boolean = true): Promise<Actor[]> => {
+export const getPopularActors = async (filterByWestern: boolean = true, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
     const MAX_ACTORS = 20;
     const allActors: Actor[] = [];
@@ -105,7 +78,7 @@ export const getPopularActors = async (filterByWestern: boolean = true): Promise
         }
       });
       
-      // Get details for each actor to check their nationality
+      // Get details and credits for each actor
       const actorDetailsPromises = response.data.results
         .filter(actor => 
           actor.profile_path && // Must have a profile picture
@@ -113,10 +86,16 @@ export const getPopularActors = async (filterByWestern: boolean = true): Promise
         )
         .map(async (actor) => {
           try {
-            const details = await tmdbApi.get<ActorDetails>(`/person/${actor.id}`);
+            const [details, movieCredits, tvCredits] = await Promise.all([
+              tmdbApi.get<ActorDetails>(`/person/${actor.id}`),
+              tmdbApi.get<MovieCreditsResponse>(`/person/${actor.id}/movie_credits`),
+              tmdbApi.get<TVCreditsResponse>(`/person/${actor.id}/tv_credits`)
+            ]);
             return {
               actor,
-              details: details.data
+              details: details.data,
+              movieCredits: movieCredits.data.cast,
+              tvCredits: tvCredits.data.cast
             };
           } catch (error) {
             console.error(`Error fetching details for actor ${actor.id}:`, error);
@@ -126,11 +105,11 @@ export const getPopularActors = async (filterByWestern: boolean = true): Promise
 
       const actorDetails = await Promise.all(actorDetailsPromises);
       
-      // Filter actors based on their place of birth if filterByWestern is true
+      // Filter actors based on their place of birth and media type
       const validActors = actorDetails
         .filter(result => {
           if (!result) return false;
-          const { details, actor } = result;
+          const { details, actor, movieCredits, tvCredits } = result;
           
           // Debug logging
           console.log(`Checking actor: ${actor.name}`);
@@ -138,6 +117,24 @@ export const getPopularActors = async (filterByWestern: boolean = true): Promise
           
           if (!details.place_of_birth) {
             console.log(`No place of birth for ${actor.name}, skipping`);
+            return false;
+          }
+
+          // Check if actor has the required media type credits
+          const hasMovies = movieCredits.length > 0;
+          const hasTVShows = tvCredits.length > 0;
+          
+          let hasRequiredMedia = true;
+          if (mediaFilter === 'MOVIES_ONLY') {
+            hasRequiredMedia = hasMovies;
+          } else if (mediaFilter === 'TV_ONLY') {
+            hasRequiredMedia = hasTVShows;
+          } else {
+            hasRequiredMedia = hasMovies || hasTVShows;
+          }
+
+          if (!hasRequiredMedia) {
+            console.log(`${actor.name} doesn't have required media type credits, skipping`);
             return false;
           }
 
@@ -164,7 +161,9 @@ export const getPopularActors = async (filterByWestern: boolean = true): Promise
           id: result!.actor.id,
           name: result!.actor.name,
           profile_path: result!.actor.profile_path,
-    }));
+          known_for_department: result!.actor.known_for_department,
+          popularity: result!.actor.popularity
+        }));
       
       console.log(`Found ${validActors.length} valid actors on page ${currentPage}`);
       allActors.push(...validActors);
@@ -208,6 +207,8 @@ export const getTargetActor = async (): Promise<Actor> => {
         id: response.data.id,
         name: response.data.name,
         profile_path: response.data.profile_path,
+        known_for_department: response.data.known_for_department,
+        popularity: response.data.popularity
       };
     } catch (error: any) {
       console.error('TMDB API error:', error.message);
@@ -221,16 +222,64 @@ export const getTargetActor = async (): Promise<Actor> => {
   });
 };
 
-// Get movies by actor ID
-export const getMoviesByActor = async (actorId: number): Promise<Movie[]> => {
+interface MovieCreditsResponse {
+  cast: {
+    id: number;
+    title: string;
+    poster_path: string | null;
+    release_date: string;
+  }[];
+}
+
+interface TVCreditsResponse {
+  cast: {
+    id: number;
+    name: string;
+    poster_path: string | null;
+    first_air_date: string;
+  }[];
+}
+
+export const getMediaByActor = async (actorId: number, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Media[]> => {
   return rateLimitRequest(async () => {
-    const response = await tmdbApi.get<MovieCredits>(`/person/${actorId}/movie_credits`);
-    return response.data.cast.map((movie) => ({
-      id: movie.id,
-      title: movie.title,
-      poster_path: movie.poster_path,
-      release_date: movie.release_date,
-    }));
+    // Check cache first
+    const cacheKey = `media_${actorId}_${mediaFilter}`;
+    const cachedData = cache.get<Media[]>(cacheKey);
+    if (cachedData) {
+      console.log('Returning cached media for actor:', actorId);
+      return cachedData;
+    }
+
+    const media: Media[] = [];
+
+    // Fetch movies if needed
+    if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'MOVIES_ONLY') {
+      const movieResponse = await tmdbApi.get<MovieCreditsResponse>(`/person/${actorId}/movie_credits`);
+      const movies = movieResponse.data.cast.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+        media_type: 'movie' as const,
+      }));
+      media.push(...movies);
+    }
+
+    // Fetch TV shows if needed
+    if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'TV_ONLY') {
+      const tvResponse = await tmdbApi.get<TVCreditsResponse>(`/person/${actorId}/tv_credits`);
+      const tvShows = tvResponse.data.cast.map((show) => ({
+        id: show.id,
+        name: show.name,
+        first_air_date: show.first_air_date,
+        poster_path: show.poster_path,
+        media_type: 'tv' as const,
+      }));
+      media.push(...tvShows);
+    }
+
+    cache.set(cacheKey, media);
+    return media;
   });
 };
 
@@ -250,9 +299,17 @@ export const getActorImages = async (actorId: number): Promise<ActorImage[]> => 
   });
 };
 
-export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
+export const getCastByMedia = async (mediaId: number, mediaType: MediaType): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
-    const response = await tmdbApi.get<Cast>(`/movie/${movieId}/credits`);
+    // Check cache first
+    const cacheKey = `cast_${mediaType}_${mediaId}`;
+    const cachedData = cache.get<Actor[]>(cacheKey);
+    if (cachedData) {
+      console.log('Returning cached cast for media:', mediaId);
+      return cachedData;
+    }
+
+    const response = await tmdbApi.get<Cast>(`/${mediaType}/${mediaId}/credits`);
     const cast = response.data.cast;
     
     // Fetch images for each actor
@@ -264,7 +321,8 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
             id: actor.id,
             name: actor.name,
             profile_path: actor.profile_path,
-            images: images
+            known_for_department: 'Acting',
+            popularity: 0
           };
         } catch (error) {
           console.error(`Failed to fetch images for actor ${actor.id}:`, error);
@@ -272,12 +330,15 @@ export const getCastByMovie = async (movieId: number): Promise<Actor[]> => {
             id: actor.id,
             name: actor.name,
             profile_path: actor.profile_path,
-            images: []
+            known_for_department: 'Acting',
+            popularity: 0
           };
         }
       })
     );
     
+    // Cache the results
+    cache.set(cacheKey, actorsWithImages);
     return actorsWithImages;
   });
 };
@@ -291,20 +352,55 @@ interface MovieSearchResponse {
   }[];
 }
 
-export const searchMovies = async (query: string): Promise<Movie[]> => {
+interface TVSearchResponse {
+  results: {
+    id: number;
+    name: string;
+    poster_path: string;
+    first_air_date: string;
+  }[];
+}
+
+export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Media[]> => {
   return rateLimitRequest(async () => {
-    const response = await tmdbApi.get<MovieSearchResponse>(`/search/movie`, {
-      params: {
-        query,
-        include_adult: false,
-      },
-    });
-    
-    return response.data.results.map(movie => ({
-      id: movie.id,
-      title: movie.title,
-      poster_path: movie.poster_path,
-      release_date: movie.release_date,
-    }));
+    const media: Media[] = [];
+
+    // Search movies if needed
+    if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'MOVIES_ONLY') {
+      const movieResponse = await tmdbApi.get<MovieSearchResponse>(`/search/movie`, {
+        params: {
+          query,
+          include_adult: false,
+        },
+      });
+      const movies = movieResponse.data.results.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        release_date: movie.release_date,
+        poster_path: movie.poster_path,
+        media_type: 'movie' as const,
+      }));
+      media.push(...movies);
+    }
+
+    // Search TV shows if needed
+    if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'TV_ONLY') {
+      const tvResponse = await tmdbApi.get<TVSearchResponse>(`/search/tv`, {
+        params: {
+          query,
+          include_adult: false,
+        },
+      });
+      const tvShows = tvResponse.data.results.map((show) => ({
+        id: show.id,
+        name: show.name,
+        first_air_date: show.first_air_date,
+        poster_path: show.poster_path,
+        media_type: 'tv' as const,
+      }));
+      media.push(...tvShows);
+    }
+
+    return media;
   });
 }; 

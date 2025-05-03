@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, ReactNode, useCallback, useEffect } from 'react';
-import { Actor, Movie, GameState } from '../types';
+import { Actor, Media, GameState, MediaFilter } from '../types';
 
 // Initial state
 const initialState: GameState = {
@@ -13,7 +13,8 @@ const initialState: GameState = {
     maxHops: 6,
     maxHopsEnabled: false,
     timerEnabled: false,
-    timerDuration: 7 // in minutes
+    timerDuration: 7, // in minutes
+    mediaFilter: 'ALL_MEDIA' as MediaFilter
   },
   timer: {
     remainingTime: 0,
@@ -26,7 +27,7 @@ const initialState: GameState = {
 type Action =
   | { type: 'SET_TARGET_ACTOR'; payload: Actor }
   | { type: 'START_GAME'; payload: { targetActor: Actor; startingActor: Actor } }
-  | { type: 'SELECT_MOVIE'; payload: Movie }
+  | { type: 'SELECT_MEDIA'; payload: Media }
   | { type: 'SELECT_ACTOR'; payload: Actor }
   | { type: 'RESET_GAME' }
   | { type: 'UPDATE_SETTINGS'; payload: GameState['settings'] }
@@ -65,7 +66,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         }
       };
 
-    case 'SELECT_MOVIE':
+    case 'SELECT_MEDIA':
       // Prevent selection if game is already over
       if (state.gameStatus === 'lost' || state.gameStatus === 'won') {
         return state;
@@ -74,7 +75,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         ...state,
         currentPath: [
           ...state.currentPath.slice(0, -1),
-          { ...state.currentPath[state.currentPath.length - 1], movie: action.payload },
+          { ...state.currentPath[state.currentPath.length - 1], media: action.payload },
         ],
       };
 
@@ -99,8 +100,8 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       // Calculate moves made (each actor selection counts as a move)
       const totalActors = updatedPath.filter(item => item.actor).length;
 
-      // Check lose condition (max moves reached)
-      if (state.settings.maxHopsEnabled && totalActors >= state.settings.maxHops) {
+      // Check lose condition (max moves reached) - now always enforced
+      if (totalActors >= state.settings.maxHops) {
         return {
           ...state,
           currentPath: updatedPath,
@@ -209,7 +210,7 @@ interface GameContextProps {
   dispatch: React.Dispatch<Action>;
   setTargetActor: (actor: Actor) => void;
   startGame: (actor: Actor) => void;
-  selectMovie: (movie: Movie) => void;
+  selectMedia: (media: Media) => void;
   selectActor: (actor: Actor) => void;
   resetGame: () => void;
   updateSettings: (settings: GameState['settings']) => void;
@@ -238,8 +239,8 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
     dispatch({ type: 'START_GAME', payload: { targetActor: state.targetActor, startingActor } });
   }, [state.targetActor]);
 
-  const selectMovie = useCallback((movie: Movie) => {
-    dispatch({ type: 'SELECT_MOVIE', payload: movie });
+  const selectMedia = useCallback((media: Media) => {
+    dispatch({ type: 'SELECT_MEDIA', payload: media });
   }, []);
 
   const selectActor = useCallback((actor: Actor) => {
@@ -264,7 +265,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
 
   // Add timer effect
   useEffect(() => {
-    let intervalId: number;
+    let intervalId: NodeJS.Timeout;
 
     if (state.timer.isRunning && state.timer.remainingTime > 0 && state.settings.timerEnabled && !state.timer.isPaused) {
       intervalId = setInterval(() => {
@@ -301,7 +302,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       dispatch,
       setTargetActor,
       startGame,
-      selectMovie,
+      selectMedia,
       selectActor,
       resetGame,
       updateSettings,
@@ -310,7 +311,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       pauseTimer,
       resumeTimer
     }),
-    [state, dispatch, setTargetActor, startGame, selectMovie, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer, pauseTimer, resumeTimer]
+    [state, dispatch, setTargetActor, startGame, selectMedia, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer, pauseTimer, resumeTimer]
   );
 
   return (
