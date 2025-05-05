@@ -1,0 +1,166 @@
+.connectedness-word-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  min-height: calc(100vh - 146px);
+  padding-bottom: 5rem;
+  text-transform: uppercase;
+  cursor: default;
+}
+
+.connectedness-word {
+  font-family: var(--font-heading, 'Inter', Arial, sans-serif);
+  font-size: clamp(3rem, 12vw, 8rem);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  line-height: 1.05;
+  min-height: 1em;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 0.05em;
+  align-items: center;
+  justify-content: center;
+  will-change: transform;
+  transition: 1000ms cubic-bezier(0.03, 0.98, 0.52, 0.99);
+}
+
+.connectedness-letter {
+  display: inline-block;
+  position: relative;
+  cursor: crosshair;
+  font-weight: 900;
+  transition: color 500ms, letter-spacing 400ms, transform 1000ms cubic-bezier(0.03, 0.98, 0.52, 0.99);
+}
+
+.connectedness-letter.hovered {
+  z-index: 2;
+  letter-spacing: 0.18em;
+}
+
+.connectedness-letter-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.connectedness-triangle {
+  position: absolute;
+  left: 50%;
+  top: -0.5em;
+  transform: translateX(-50%) translateY(10px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms, transform 300ms;
+  z-index: 3;
+}
+
+.connectedness-letter-wrapper:hover .connectedness-triangle,
+.connectedness-letter-wrapper:focus-within .connectedness-triangle {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+.triangle-svg {
+  width: 0.5em;
+  height: 0.5em;
+  stroke-width: 1.8;
+  stroke: currentColor;
+  color: inherit;
+  display: block;
+  animation: triangle-rotate 4s linear infinite;
+}
+
+@keyframes triangle-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+@keyframes triangle-rotate {
+  0% { transform: rotate(0deg); }
+  20% { transform: rotate(180deg); }
+  40% { transform: rotate(180deg); }
+  60% { transform: rotate(270deg); }
+  80% { transform: rotate(270deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.connectedness-stripe {
+  position: absolute;
+  left: 0;
+  bottom: -0.15em;
+  width: 100%;
+  height: 0.13em;
+  background: linear-gradient(90deg, var(--yellow-color, #ffd074), var(--purple-color, #b087ff), var(--turquoise-color, #17f1d1));
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.8s cubic-bezier(.4,0,0,1);
+  z-index: 1;
+}
+
+.connectedness-letter.hovered .connectedness-stripe {
+  transform-origin: left;
+  transform: scaleX(1);
+}
+
+.spark-container {
+  position: fixed;
+  pointer-events: none;
+  width: 60px;
+  height: 60px;
+  transform-origin: center;
+  animation: spark-container 0.5s ease-out forwards;
+}
+
+.spark-line {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 20px;
+  background-color: var(--spark-color);
+  transform-origin: 0 0;
+  animation: spark-line 0.5s ease-out forwards;
+}
+
+@keyframes spark-container {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes spark-line {
+  0% {
+    height: 0;
+    opacity: 1;
+  }
+  50% {
+    height: 20px;
+    opacity: 1;
+  }
+  100% {
+    height: 20px;
+    opacity: 0;
+  }
+}
+
+/* Ensure the sound toggle button is always visible */
+.sound-toggle-btn {
+  opacity: 1 !important;
+  visibility: visible !important;
+} 
