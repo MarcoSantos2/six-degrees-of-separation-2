@@ -119,7 +119,9 @@ const GameStatus: React.FC = () => {
                     />
                     <div className="path-actor-name" style={{ color: 'var(--color-midnight-black)', fontWeight: 600, fontSize: '1.05rem', textAlign: 'center', maxWidth: 90, whiteSpace: 'normal', wordBreak: 'break-word' }}>{step.actor.name}</div>
                     {step.media && (
-                      <div className="path-movie-title" style={{ color: '#666666', fontWeight: 500, fontSize: '0.6875rem', textAlign: 'center', maxWidth: 90, whiteSpace: 'normal', wordBreak: 'break-word', marginTop: 2 }}>{step.media.title}</div>
+                      <div className="path-movie-title" style={{ color: '#666666', fontWeight: 500, fontSize: '0.6875rem', textAlign: 'center', maxWidth: 90, whiteSpace: 'normal', wordBreak: 'break-word', marginTop: 2 }}>
+                        {step.media.media_type === 'movie' ? step.media.title : step.media.name}
+                      </div>
                     )}
                   </div>
                   {index < currentPath.length - 1 && (
