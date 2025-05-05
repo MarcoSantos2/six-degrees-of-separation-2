@@ -1,6 +1,6 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
-import { Actor, Cast, MovieCredits, Movie, Media, MediaType, TVCredits, TVShow, MediaFilter } from '../types';
+import { Actor, Cast, MovieCredits, Movie, Media, MediaType, TVCredits, TVShow, MediaFilter, ALLOWED_TV_GENRES, EXCLUDED_TV_GENRES, EXCLUDED_TV_SHOW_IDS } from '../types';
 import { rateLimitRequest } from './rateLimiter';
 import { cache } from './cache';
 
@@ -237,6 +237,7 @@ interface TVCreditsResponse {
     name: string;
     poster_path: string | null;
     first_air_date: string;
+    genre_ids?: number[];
   }[];
 }
 
@@ -267,15 +268,92 @@ export const getMediaByActor = async (actorId: number, mediaFilter: MediaFilter 
 
     // Fetch TV shows if needed
     if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'TV_ONLY') {
+      console.log('Fetching TV credits for actor:', actorId);
       const tvResponse = await tmdbApi.get<TVCreditsResponse>(`/person/${actorId}/tv_credits`);
-      const tvShows = tvResponse.data.cast.map((show) => ({
-        id: show.id,
-        name: show.name,
-        first_air_date: show.first_air_date,
-        poster_path: show.poster_path,
-        media_type: 'tv' as const,
-      }));
-      media.push(...tvShows);
+      console.log(`Found ${tvResponse.data.cast.length} TV shows in credits`);
+      
+      const tvShows = tvResponse.data.cast
+        .filter(show => {
+          console.log(`\nChecking TV show: ${show.name}`);
+          // Check for excluded show ID first
+          if (EXCLUDED_TV_SHOW_IDS.includes(show.id)) {
+            console.log('Show is in excluded list, will be filtered out');
+            return false;
+          }
+          // If no genre_ids are provided, fetch them
+          if (!show.genre_ids) {
+            console.log('No genre_ids available, will fetch details');
+            return true; // Include it for now, we'll filter after fetching details
+          }
+          // Check for excluded genres
+          const hasExcludedGenre = show.genre_ids.some(genreId => EXCLUDED_TV_GENRES.includes(genreId));
+          if (hasExcludedGenre) {
+            console.log('Has excluded genre, will be filtered out');
+            return false;
+          }
+          // Then check for allowed genres
+          const hasAllowedGenre = show.genre_ids.some(genreId => ALLOWED_TV_GENRES.includes(genreId));
+          console.log('Genre IDs:', show.genre_ids);
+          console.log('Has allowed genre:', hasAllowedGenre);
+          return hasAllowedGenre;
+        })
+        .map(async (show) => {
+          // If we don't have genre_ids, fetch the show details
+          if (!show.genre_ids) {
+            try {
+              console.log(`Fetching details for TV show: ${show.name}`);
+              const details = await tmdbApi.get(`/tv/${show.id}`);
+              show.genre_ids = details.data.genres.map((g: { id: number }) => g.id);
+              console.log(`Fetched genres for ${show.name}:`, show.genre_ids);
+            } catch (error) {
+              console.error(`Failed to fetch details for TV show ${show.id}:`, error);
+              return null;
+            }
+          }
+          return {
+            id: show.id,
+            name: show.name,
+            first_air_date: show.first_air_date,
+            poster_path: show.poster_path,
+            media_type: 'tv' as const,
+            genre_ids: show.genre_ids
+          } as TVShow;
+        });
+
+      // Wait for all TV show details to be fetched
+      console.log('\nResolving TV show details...');
+      const resolvedShows = await Promise.all(tvShows);
+      console.log(`Resolved ${resolvedShows.length} TV shows`);
+      
+      const filteredShows = resolvedShows
+        .filter((show): show is TVShow => {
+          if (show === null) {
+            console.log('Skipping null show');
+            return false;
+          }
+          // Check for excluded show ID first
+          if (EXCLUDED_TV_SHOW_IDS.includes(show.id)) {
+            console.log(`\n${show.name} is in excluded list, filtering out`);
+            return false;
+          }
+          // Check for excluded genres
+          const hasExcludedGenre = show.genre_ids?.some(genreId => EXCLUDED_TV_GENRES.includes(genreId)) === true;
+          if (hasExcludedGenre) {
+            console.log(`\n${show.name} has excluded genre, filtering out`);
+            return false;
+          }
+          // Then check for allowed genres
+          const hasAllowedGenre = show.genre_ids?.some(genreId => ALLOWED_TV_GENRES.includes(genreId)) === true;
+          console.log(`\nFinal check for ${show.name}:`);
+          console.log('Genre IDs:', show.genre_ids);
+          console.log('Has allowed genre:', hasAllowedGenre);
+          return hasAllowedGenre;
+        });
+      
+      console.log(`\nFinal filtered TV shows: ${filteredShows.length}`);
+      filteredShows.forEach(show => console.log(`- ${show.name} (Genres: ${show.genre_ids?.join(', ')})`));
+      
+      media.push(...filteredShows);
     }
 
     cache.set(cacheKey, media);
@@ -356,7 +434,7 @@ interface TVSearchResponse {
   results: {
     id: number;
     name: string;
-    poster_path: string;
+    poster_path: string | null;
     first_air_date: string;
   }[];
 }
@@ -385,20 +463,69 @@ export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL
 
     // Search TV shows if needed
     if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'TV_ONLY') {
+      console.log('\nSearching TV shows for query:', query);
       const tvResponse = await tmdbApi.get<TVSearchResponse>(`/search/tv`, {
         params: {
           query,
           include_adult: false,
         },
       });
-      const tvShows = tvResponse.data.results.map((show) => ({
-        id: show.id,
-        name: show.name,
-        first_air_date: show.first_air_date,
-        poster_path: show.poster_path,
-        media_type: 'tv' as const,
-      }));
-      media.push(...tvShows);
+      console.log(`Found ${tvResponse.data.results.length} TV shows in search results`);
+      
+      // Fetch details for each TV show to get genres
+      const tvShows = await Promise.all(
+        tvResponse.data.results.map(async (show) => {
+          try {
+            console.log(`\nFetching details for TV show: ${show.name}`);
+            const details = await tmdbApi.get(`/tv/${show.id}`);
+            const genreIds = details.data.genres.map((g: { id: number }) => g.id);
+            console.log(`Genres for ${show.name}:`, genreIds);
+            return {
+              id: show.id,
+              name: show.name,
+              first_air_date: show.first_air_date,
+              poster_path: show.poster_path,
+              media_type: 'tv' as const,
+              genre_ids: genreIds
+            } as TVShow;
+          } catch (error) {
+            console.error(`Failed to fetch details for TV show ${show.id}:`, error);
+            return null;
+          }
+        })
+      );
+
+      // Filter shows by allowed genres
+      console.log('\nFiltering TV shows by allowed genres...');
+      const filteredShows = tvShows
+        .filter((show): show is TVShow => {
+          if (show === null) {
+            console.log('Skipping null show');
+            return false;
+          }
+          // Check for excluded show ID first
+          if (EXCLUDED_TV_SHOW_IDS.includes(show.id)) {
+            console.log(`\n${show.name} is in excluded list, filtering out`);
+            return false;
+          }
+          // Check for excluded genres
+          const hasExcludedGenre = show.genre_ids?.some(genreId => EXCLUDED_TV_GENRES.includes(genreId)) === true;
+          if (hasExcludedGenre) {
+            console.log(`\n${show.name} has excluded genre, filtering out`);
+            return false;
+          }
+          // Then check for allowed genres
+          const hasAllowedGenre = show.genre_ids?.some(genreId => ALLOWED_TV_GENRES.includes(genreId)) === true;
+          console.log(`\nChecking ${show.name}:`);
+          console.log('Genre IDs:', show.genre_ids);
+          console.log('Has allowed genre:', hasAllowedGenre);
+          return hasAllowedGenre;
+        });
+      
+      console.log(`\nFinal filtered TV shows: ${filteredShows.length}`);
+      filteredShows.forEach(show => console.log(`- ${show.name} (Genres: ${show.genre_ids?.join(', ')})`));
+      
+      media.push(...filteredShows);
     }
 
     return media;

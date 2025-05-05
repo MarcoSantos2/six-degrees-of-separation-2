@@ -97,7 +97,7 @@ const GameStatus: React.FC = () => {
       </div>
 
       <div style={{ maxWidth: 700, margin: '0 auto' }}>
-        <div className="game-status panel" style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '1.5em', borderRadius: 12 }}>
+        <div className="game-status panel" style={{ padding: '1.5em', borderRadius: 12 }}>
       {gameStatus === 'in_progress' && (
         <div className="path-section" style={{ marginTop: 16 }}>
           <div className="path-header" onClick={togglePath} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
@@ -110,7 +110,7 @@ const GameStatus: React.FC = () => {
             <div className="interactive-path" style={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', whiteSpace: 'nowrap', marginTop: 12 }}>
               {currentPath.map((step, index) => (
                 <div key={index} className="path-step" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <div className="path-actor-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 100, padding: 10, borderRadius: 8, background: '#fff', boxShadow: '0 2px 4px black' }}>
+                  <div className="path-actor-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 100, padding: 10, borderRadius: 8, background: '#fff', boxShadow: '#00000050 1px 4px 8px' }}>
                     <img 
                       src={getActorImageUrl(step.actor)}
                       alt={step.actor.name}

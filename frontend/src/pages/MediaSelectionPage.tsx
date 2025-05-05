@@ -70,7 +70,12 @@ const MediaSelectionPage: React.FC = () => {
     state.settings.mediaFilter === 'TV_ONLY' ? 'TV Shows' : 'Movies & TV Shows';
 
   return (
-    <div className="media-selection-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
+    <div className="media-selection-page panel" style={{ 
+      maxWidth: 1280, 
+      margin: '0 auto',
+      padding: '8px 32px',
+      minHeight: 'calc(100vh - 124.59px)'
+    }}>
       <GameStatus />
       <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Select a {mediaTypeLabel}</h1>
       <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
@@ -103,10 +108,10 @@ const MediaSelectionPage: React.FC = () => {
       ) : (
         <div className="grid-container" style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
           gap: '1.5em',
           margin: '0 auto',
-          maxWidth: 800
+          maxWidth: '100%'
         }}>
           {filteredMedia.map(media => (
             <MediaCard
