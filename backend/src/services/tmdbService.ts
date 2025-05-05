@@ -387,12 +387,118 @@ export const getCastByMedia = async (mediaId: number, mediaType: MediaType): Pro
       return cachedData;
     }
 
-    const response = await tmdbApi.get<Cast>(`/${mediaType}/${mediaId}/credits`);
-    const cast = response.data.cast;
+    if (mediaType === 'movie') {
+      // Movie: use existing logic
+      const response = await tmdbApi.get<Cast>(`/movie/${mediaId}/credits`);
+      const cast = response.data.cast;
+      const actorsWithImages = await Promise.all(
+        cast.map(async (actor) => {
+          try {
+            const images = await getActorImages(actor.id);
+            return {
+              id: actor.id,
+              name: actor.name,
+              profile_path: actor.profile_path,
+              known_for_department: 'Acting',
+              popularity: 0
+            };
+          } catch (error) {
+            console.error(`Failed to fetch images for actor ${actor.id}:`, error);
+            return {
+              id: actor.id,
+              name: actor.name,
+              profile_path: actor.profile_path,
+              known_for_department: 'Acting',
+              popularity: 0
+            };
+          }
+        })
+      );
+      cache.set(cacheKey, actorsWithImages);
+      return actorsWithImages;
+    }
+
+    // TV: fetch main cast first, then all episodes cast
+    console.log(`\n[TV] [${mediaId}] ===== STARTING TV CAST FETCH =====`);
     
-    // Fetch images for each actor
+    // Get main series cast first
+    console.log(`[TV] [${mediaId}] Fetching main series cast...`);
+    const mainCastResponse = await tmdbApi.get<Cast>(`/tv/${mediaId}/credits`);
+    const mainCast = mainCastResponse.data.cast || [];
+    console.log(`[TV] [${mediaId}] Main cast response:`, JSON.stringify(mainCastResponse.data, null, 2));
+    console.log(`[TV] [${mediaId}] Found ${mainCast.length} actors in main cast.`);
+    console.log('Main cast names:', mainCast.map(a => a.name).join(', '));
+    
+    // Then get episode-specific cast
+    console.log(`\n[TV] [${mediaId}] Fetching show details...`);
+    const showDetails = await tmdbApi.get(`/tv/${mediaId}`);
+    const seasons = showDetails.data.seasons || [];
+    console.log(`[TV] [${mediaId}] Show details:`, JSON.stringify(showDetails.data, null, 2));
+    console.log(`[TV] [${mediaId}] Found ${seasons.length} seasons.`);
+    let allEpisodes: { season_number: number, episode_number: number }[] = [];
+    
+    for (const season of seasons) {
+      if (season.season_number === 0) {
+        console.log(`[TV] [${mediaId}] Skipping season 0 (specials)`);
+        continue;
+      }
+      console.log(`\n[TV] [${mediaId}] Fetching episodes for season ${season.season_number}...`);
+      const seasonDetails = await tmdbApi.get(`/tv/${mediaId}/season/${season.season_number}`);
+      const episodes = seasonDetails.data.episodes || [];
+      console.log(`[TV] [${mediaId}] Season ${season.season_number} has ${episodes.length} episodes`);
+      allEpisodes.push(...episodes.map((ep: any) => ({ 
+        season_number: season.season_number, 
+        episode_number: ep.episode_number 
+      })));
+    }
+    
+    console.log(`\n[TV] [${mediaId}] Total episodes to fetch credits for: ${allEpisodes.length}`);
+    if (allEpisodes.length > 50) {
+      console.log(`[TV] [${mediaId}] This may take a while. Fetching credits for ${allEpisodes.length} episodes...`);
+    }
+    
+    const episodeCredits = await Promise.all(
+      allEpisodes.map(async ({ season_number, episode_number }) => {
+        try {
+          console.log(`[TV] [${mediaId}] Fetching credits for S${season_number}E${episode_number}...`);
+          const creditsResp = await tmdbApi.get(`/tv/${mediaId}/season/${season_number}/episode/${episode_number}/credits`);
+          const cast = creditsResp.data.cast || [];
+          const guestStars = creditsResp.data.guest_stars || [];
+          console.log(`[TV] [${mediaId}] S${season_number}E${episode_number} has ${cast.length} cast members and ${guestStars.length} guest stars`);
+          return [...cast, ...guestStars];
+        } catch (err) {
+          console.error(`[TV] [${mediaId}] Failed to fetch credits for S${season_number}E${episode_number}:`, err);
+          return [];
+        }
+      })
+    );
+    
+    // Combine main cast with episode casts and deduplicate
+    console.log(`\n[TV] [${mediaId}] Combining and deduplicating casts...`);
+    const allActors = [...mainCast, ...episodeCredits.flat()];
+    console.log(`[TV] [${mediaId}] Total actors before deduplication: ${allActors.length}`);
+    
+    // Create a map to store unique actors, preserving the first occurrence of each actor
+    const uniqueActorsMap = new Map<number, any>();
+    
+    // First add main cast members (they take precedence)
+    for (const actor of mainCast) {
+      uniqueActorsMap.set(actor.id, actor);
+    }
+    
+    // Then add episode cast members if they're not already in the map
+    for (const actor of episodeCredits.flat()) {
+      if (!uniqueActorsMap.has(actor.id)) {
+        uniqueActorsMap.set(actor.id, actor);
+      }
+    }
+    
+    const uniqueActors = Array.from(uniqueActorsMap.values());
+    console.log(`[TV] [${mediaId}] Found ${uniqueActors.length} unique actors after deduplication (including main cast).`);
+    console.log('Unique actor names:', uniqueActors.map(a => a.name).join(', '));
+    
     const actorsWithImages = await Promise.all(
-      cast.map(async (actor) => {
+      uniqueActors.map(async (actor) => {
         try {
           const images = await getActorImages(actor.id);
           return {
@@ -400,22 +506,22 @@ export const getCastByMedia = async (mediaId: number, mediaType: MediaType): Pro
             name: actor.name,
             profile_path: actor.profile_path,
             known_for_department: 'Acting',
-            popularity: 0
+            popularity: actor.popularity || 0
           };
         } catch (error) {
-          console.error(`Failed to fetch images for actor ${actor.id}:`, error);
           return {
             id: actor.id,
             name: actor.name,
             profile_path: actor.profile_path,
             known_for_department: 'Acting',
-            popularity: 0
+            popularity: actor.popularity || 0
           };
         }
       })
     );
     
-    // Cache the results
+    console.log(`\n[TV] [${mediaId}] ===== FINISHED TV CAST FETCH =====`);
+    console.log(`[TV] [${mediaId}] Returning ${actorsWithImages.length} actors.`);
     cache.set(cacheKey, actorsWithImages);
     return actorsWithImages;
   });
