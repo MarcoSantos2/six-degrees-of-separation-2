@@ -80,7 +80,6 @@ const StartPage: React.FC = () => {
     <div className="start-page panel" style={{ 
       maxWidth: 900, 
       margin: '2em auto', 
-      boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
       position: 'relative',  // Add this to create a new stacking context
       zIndex: 1  // Lower z-index for the container
     }}>
