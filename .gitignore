@@ -19,6 +19,8 @@ dist/
 .env.development.local
 .env.test.local
 .env.production.local
+instructions.md
+
 
 # logs
 npm-debug.log*
@@ -34,3 +36,6 @@ yarn-error.log*
 
 #other
 website_name.md
+
+# new code
+docs/

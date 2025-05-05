@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
-import GameStatus from '../components/GameStatus';
 import './styles.css';
 
 const EndPage: React.FC = () => {
@@ -28,9 +27,8 @@ const EndPage: React.FC = () => {
   const hopsMade = totalActors > 0 ? totalActors - 1 : 0;
 
   return (
-    <div className="end-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}>
+    <div className="end-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)', position: 'relative' }}>
       <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Game Over</h1>
-      <GameStatus />
       <div className="game-summary" style={{ background: 'var(--bg-panel)', borderRadius: 12, margin: '2em auto', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '2em', maxWidth: 600 }}>
         <h2 style={{ textAlign: 'center', color: state.gameStatus === 'won' ? 'var(--color-spotlight-gold)' : 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.5rem', marginBottom: '1em' }}>
           {state.gameStatus === 'won' ? 'Congratulations! You won!' : 'Better luck next time!'}
@@ -49,8 +47,8 @@ const EndPage: React.FC = () => {
                 {step.actor && (
                   <div className="path-actor" style={{ color: 'var(--color-midnight-black)', fontWeight: 'bold' }}>{step.actor.name}</div>
                 )}
-                {step.movie && (
-                  <div className="path-movie" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginLeft: 20 }}>in "{step.movie.title}"</div>
+                {step.media && (
+                  <div className="path-movie" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginLeft: 20 }}>in "{step.media.title}"</div>
                 )}
               </li>
             ))}
@@ -58,7 +56,7 @@ const EndPage: React.FC = () => {
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5em', marginTop: '2em' }}>
           <button className="btn" style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={handlePlayAgain}>Play Again</button>
-          <button className="btn" style={{ background: 'var(--button-secondary-bg)', color: 'var(--button-secondary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={handleNewGame}>New Game</button>
+          <button className="btn" style={{ background: 'var(--button-secondary-bg)', color: 'var(--button-secondary-text)', fontWeight: 700, fontSize: '1.1rem' }} disabled>See Leaderboard (coming soon)</button>
         </div>
       </div>
     </div>

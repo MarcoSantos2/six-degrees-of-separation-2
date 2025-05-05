@@ -4,7 +4,7 @@ import SettingsModal from './SettingsModal';
 import { useGame } from '../context/GameContext';
 import './Navbar.css';
 
-const LOGO_PATH = '/logos/logo2-nobg.png';
+const LOGO_PATH = '/logos/main-logo.png';
 
 const Navbar: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -17,9 +17,6 @@ const Navbar: React.FC = () => {
     navigate('/');
   };
 
-  // Don't show restart button on end page
-  const showRestartButton = location.pathname !== '/end';
-
   return (
     <nav className="navbar" style={{
       display: 'flex',
@@ -31,20 +28,15 @@ const Navbar: React.FC = () => {
       zIndex: 1000
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-        <img src={LOGO_PATH} alt="App Logo" style={{ height: 40, width: 40, borderRadius: 8, background: 'var(--color-white-frame)' }} />
-        <span style={{
-          fontFamily: 'var(--font-heading)',
-          fontSize: '2rem',
-          letterSpacing: '0.08em',
-          color: 'var(--text-main)',
-          textTransform: 'uppercase',
-          fontWeight: 700
-        }}>
-          Degrees of Separation
-        </span>
+        <div 
+          onClick={() => navigate('/')} 
+          style={{ cursor: 'pointer' }}
+        >
+          <img src={LOGO_PATH} alt="App Logo" style={{ height: 100, width: 100, borderRadius: 8, background: 'var(--color-white-frame)' }} />
+        </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
-        {showRestartButton && (
+        {location.pathname !== '/' && (
           <button 
             className="icon-button"
             onClick={handleRestart}
