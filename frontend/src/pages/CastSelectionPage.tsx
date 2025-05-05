@@ -13,6 +13,7 @@ const CastSelectionPage: React.FC = () => {
   const [cast, setCast] = useState<Actor[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchCast = async () => {
@@ -40,11 +41,37 @@ const CastSelectionPage: React.FC = () => {
   if (loading) return <div>Loading cast...</div>;
   if (error) return <div>{error}</div>;
 
+  const filteredCast = searchTerm
+    ? cast.filter(actor => actor.name.toLowerCase().includes(searchTerm.toLowerCase()))
+    : cast;
+
   return (
     <div className="cast-selection-page">
       <GameStatus />
+      <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
+        <input
+          type="text"
+          placeholder="Search cast..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="search-input"
+          style={{
+            padding: '0.7em 1.2em',
+            borderRadius: 8,
+            border: '1px solid var(--border)',
+            fontSize: '1.1rem',
+            width: 320,
+            maxWidth: '90%',
+            background: 'var(--bg-panel)',
+            color: 'var(--text-main)',
+            outline: 'none',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
+          }}
+          aria-label="Search cast"
+        />
+      </div>
       <div className="cast-grid">
-        {cast.map((actor) => (
+        {filteredCast.map((actor) => (
           <ActorCard
             key={actor.id}
             actor={actor}
