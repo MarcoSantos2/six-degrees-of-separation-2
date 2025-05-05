@@ -41,6 +41,11 @@
   letter-spacing: 0.18em;
 }
 
+.connectedness-letter-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
 .connectedness-triangle {
   position: absolute;
   left: 50%;
@@ -48,12 +53,14 @@
   transform: translateX(-50%) translateY(10px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity 500ms, transform 500ms;
-  animation: triangle-fade-in 0.5s cubic-bezier(0.03, 0.98, 0.52, 0.99) forwards;
+  transition: opacity 300ms, transform 300ms;
+  z-index: 3;
 }
 
-.connectedness-letter.hovered .connectedness-triangle {
+.connectedness-letter-wrapper:hover .connectedness-triangle,
+.connectedness-letter-wrapper:focus-within .connectedness-triangle {
   opacity: 1;
+  pointer-events: auto;
   transform: translateX(-50%) translateY(0);
 }
 
@@ -152,27 +159,8 @@
   }
 }
 
-.spark-absolute {
-  position: fixed;
-  pointer-events: none;
-  width: 3px;
-  height: 18px;
-  transform-origin: center center;
-  transform: translate(-50%, -50%) rotate(var(--spark-angle, 0deg)) translateY(0);
-  animation: spark-absolute-fly 0.5s ease-out forwards;
-}
-
-@keyframes spark-absolute-fly {
-  0% {
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(var(--spark-angle, 0deg)) translateY(0);
-  }
-  80% {
-    opacity: 1;
-    transform: translate(-50%, -50%) rotate(var(--spark-angle, 0deg)) translateY(-30px);
-  }
-  100% {
-    opacity: 0;
-    transform: translate(-50%, -50%) rotate(var(--spark-angle, 0deg)) translateY(-40px);
-  }
+/* Ensure the sound toggle button is always visible */
+.sound-toggle-btn {
+  opacity: 1 !important;
+  visibility: visible !important;
 } 

@@ -7,7 +7,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: process.env.VITE_API_URL,
         changeOrigin: true
       }
     },
@@ -17,12 +17,13 @@ export default defineConfig({
     allowedHosts: [
       'localhost',
       '127.0.0.1',
-      'social-ducks-jam.loca.lt',
+      'mean-baths-relate.loca.lt',
       'young-bars-rhyme.loca.lt',
       'six-degrees-game.loca.lt',
       'easy-parrots-learn.loca.lt',
       'six-degrees.loca.lt',
-      'warm-skunk-83.loca.lt'
+      'warm-skunk-83.loca.lt',
+      'sixdegreesfront.felipedossantos.com'
     ]
   },
 }); 

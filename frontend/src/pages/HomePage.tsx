@@ -84,7 +84,7 @@ const HomePage: React.FC = () => {
         color: 'var(--text-primary)',
         fontWeight: '600'
       }}>
-        We Are All Connected Through 6 Degrees of Separation
+        Degrees of Separation: We Are All Connected
       </h1>
       <p style={{ 
         fontSize: '1.1rem', 
