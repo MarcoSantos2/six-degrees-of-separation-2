@@ -13,7 +13,7 @@ const AttributionTMDB: React.FC = () => (
       </span>
     </div>
     <div style={{ fontSize: '0.92rem', color: '#aaa', marginTop: 4 }}>
-      © 2025 by Marco Santos. All rights reserved.
+      © 2025 - All rights reserved.
     </div>
   </div>
 );
