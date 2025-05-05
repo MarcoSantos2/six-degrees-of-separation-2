@@ -55,20 +55,6 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, onClick }) => {
             boxShadow: '0 1px 4px rgba(0,0,0,0.08)'
           }}
         />
-        <div style={{
-          position: 'absolute',
-          top: 8,
-          right: 8,
-          background: 'var(--color-primary)',
-          color: 'white',
-          padding: '2px 6px',
-          borderRadius: 4,
-          fontSize: '0.75rem',
-          fontWeight: 'bold',
-          textTransform: 'uppercase'
-        }}>
-          {media.media_type}
-        </div>
       </div>
       <div className="card-title" title={title} style={{
         fontFamily: 'var(--font-heading)',
@@ -88,6 +74,21 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, onClick }) => {
         width: '100%'
       }}>{title}</div>
       <div className="card-year" style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: 2 }}>{year}</div>
+      <div className="media-type-badge" style={{
+        marginTop: 8,
+        background: '#2a2a2a',
+        color: '#fff',
+        padding: '2px 10px',
+        borderRadius: 6,
+        fontSize: '0.85rem',
+        fontWeight: 600,
+        textTransform: 'uppercase',
+        letterSpacing: '0.04em',
+        alignSelf: 'center',
+        display: 'inline-block'
+      }}>
+        {media.media_type === 'movie' ? 'Movie' : 'TV'}
+      </div>
     </div>
   );
 };
