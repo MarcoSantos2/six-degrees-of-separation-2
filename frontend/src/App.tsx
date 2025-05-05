@@ -8,6 +8,7 @@ import CastSelectionPage from './pages/CastSelectionPage';
 import EndPage from './pages/EndPage';
 import Navbar from './components/Navbar';
 import { ToastProvider } from './components/ToastProvider';
+import AttributionTMDB from './components/AttributionTMDB';
 
 const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
@@ -57,6 +58,7 @@ const App: React.FC = () => {
               <Route path="/end" element={<EndPage />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
+            <AttributionTMDB />
           </div>
         </Router>
       </GameProvider>
