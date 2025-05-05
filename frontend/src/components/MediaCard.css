@@ -24,11 +24,10 @@
 
 .media-info h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 1.08rem;
   color: #fff;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .media-info p {

@@ -193,7 +193,7 @@
   align-items: center;
   gap: 10px;
   padding: 10px;
-  background-color: #f8f9fa;
+  background-color: transparent;
   border-radius: 8px;
   margin-right: 5px;
 }
@@ -207,7 +207,7 @@
   padding: 8px;
   border-radius: 6px;
   background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px black;
   transition: transform 0.2s;
 }
 
