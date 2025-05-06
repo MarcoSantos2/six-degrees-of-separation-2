@@ -50,17 +50,20 @@ const HomePage: React.FC = () => {
   }, [state.targetActor, setTargetActor]); // Added dependencies
 
   const handleStartGame = async () => {
-    try {
-      const targetActor = await getTargetActor();
-      setTargetActor(targetActor);
-      // Start the timer if enabled
-      if (state.settings.timerEnabled) {
-        dispatch({ type: 'START_TIMER' });
+    if (!state.targetActor) {
+      try {
+        const targetActor = await getTargetActor();
+        setTargetActor(targetActor);
+      } catch (error) {
+        console.error('Failed to start game:', error);
+        return;
       }
-      navigate('/start');
-    } catch (error) {
-      console.error('Failed to start game:', error);
     }
+    // Start the timer if enabled
+    if (state.settings.timerEnabled) {
+      dispatch({ type: 'START_TIMER' });
+    }
+    navigate('/start');
   };
 
   if (loading) {

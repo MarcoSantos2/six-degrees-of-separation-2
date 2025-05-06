@@ -3,31 +3,40 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import ActorCard from '../components/ActorCard';
 import { getPopularActors } from '../services/api';
+import { Actor } from '../types';
 import './styles.css';
 
 const StartPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [allActors, setAllActors] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { startGame, state } = useGame();
+  const { startGame, state, setPopularActors } = useGame();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchActors = async () => {
-      try {
-        setLoading(true);
-        const actors = await getPopularActors(state.settings.filterByWestern, state.settings.mediaFilter);
-        setAllActors(actors);
-        setLoading(false);
-      } catch (err) {
-        setError('Failed to fetch actors. Please try again later.');
-        setLoading(false);
-      }
-    };
+  // Memoize a key for the current settings to avoid stale cache
+  const settingsKey = `${state.settings.filterByWestern}_${state.settings.mediaFilter}`;
+  const [lastSettingsKey, setLastSettingsKey] = useState(settingsKey);
 
-    fetchActors();
-  }, [state.settings.filterByWestern, state.settings.mediaFilter]);
+  useEffect(() => {
+    // Only fetch if we don't already have actors for the current settings
+    if (!state.popularActors || state.popularActors.length === 0 || lastSettingsKey !== settingsKey) {
+      const fetchActors = async () => {
+        try {
+          setLoading(true);
+          const actors = await getPopularActors(state.settings.filterByWestern, state.settings.mediaFilter);
+          setPopularActors(actors);
+          setLoading(false);
+          setLastSettingsKey(settingsKey);
+        } catch (err) {
+          setError('Failed to fetch actors. Please try again later.');
+          setLoading(false);
+        }
+      };
+      fetchActors();
+    } else {
+      setLoading(false);
+    }
+  }, [state.settings.filterByWestern, state.settings.mediaFilter, setPopularActors, state.popularActors, settingsKey, lastSettingsKey]);
 
   useEffect(() => {
     // If we don't have a target actor, redirect to home
@@ -36,7 +45,7 @@ const StartPage: React.FC = () => {
     }
   }, [state.targetActor, navigate]);
 
-  const handleStartGame = (actor: typeof allActors[0]) => {
+  const handleStartGame = (actor: Actor) => {
     if (!state.targetActor) {
       navigate('/');
       return;
@@ -50,13 +59,20 @@ const StartPage: React.FC = () => {
       navigate('/');
       return;
     }
-    const randomActor = allActors[Math.floor(Math.random() * allActors.length)];
-    startGame(randomActor);
-    navigate('/movies');
+    const popularActors: Actor[] = state.popularActors || [];
+    const randomActor = popularActors.length > 0
+      ? popularActors[Math.floor(Math.random() * popularActors.length)]
+      : null;
+    if (randomActor) {
+      startGame(randomActor);
+      navigate('/movies');
+    }
   };
 
   // Deduplicate actors by id
-  const uniqueActors = Array.from(new Map(allActors.map(actor => [actor.id, actor])).values());
+  const uniqueActors = state.popularActors
+    ? Array.from(new Map(state.popularActors.map(actor => [actor.id, actor])).values())
+    : [];
 
   const filteredActors = searchTerm
     ? uniqueActors.filter(actor => 

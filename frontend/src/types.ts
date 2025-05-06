@@ -58,6 +58,8 @@ export interface GameState {
     isRunning: boolean;
     isPaused: boolean;
   };
+  // Add popular actors cache to avoid redundant API calls
+  popularActors?: Actor[];
 }
 
 export interface SearchResult {
