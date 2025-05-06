@@ -20,7 +20,8 @@ const initialState: GameState = {
     remainingTime: 0,
     isRunning: false,
     isPaused: false
-  }
+  },
+  popularActors: []
 };
 
 // Action types
@@ -38,7 +39,8 @@ type Action =
   | { type: 'START_TIMER' }
   | { type: 'TIME_UP' }
   | { type: 'PAUSE_TIMER' }
-  | { type: 'RESUME_TIMER' };
+  | { type: 'RESUME_TIMER' }
+  | { type: 'SET_POPULAR_ACTORS'; payload: Actor[] };
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
@@ -203,6 +205,12 @@ const gameReducer = (state: GameState, action: Action): GameState => {
         }
       };
 
+    case 'SET_POPULAR_ACTORS':
+      return {
+        ...state,
+        popularActors: action.payload,
+      };
+
     default:
       return state;
   }
@@ -213,6 +221,7 @@ interface GameContextProps {
   state: GameState;
   dispatch: React.Dispatch<Action>;
   setTargetActor: (actor: Actor) => void;
+  setPopularActors: (actors: Actor[]) => void;
   startGame: (actor: Actor) => void;
   selectMedia: (media: Media) => void;
   selectActor: (actor: Actor) => void;
@@ -233,6 +242,10 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
   // Memoize action creators to prevent unnecessary rerenders
   const setTargetActor = useCallback((actor: Actor) => {
     dispatch({ type: 'SET_TARGET_ACTOR', payload: actor });
+  }, []);
+
+  const setPopularActors = useCallback((actors: Actor[]) => {
+    dispatch({ type: 'SET_POPULAR_ACTORS', payload: actors });
   }, []);
 
   const startGame = useCallback((startingActor: Actor) => {
@@ -305,6 +318,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       state,
       dispatch,
       setTargetActor,
+      setPopularActors,
       startGame,
       selectMedia,
       selectActor,
@@ -315,7 +329,7 @@ export const GameProvider = ({ children }: { children: ReactNode }) => {
       pauseTimer,
       resumeTimer
     }),
-    [state, dispatch, setTargetActor, startGame, selectMedia, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer, pauseTimer, resumeTimer]
+    [state, dispatch, setTargetActor, setPopularActors, startGame, selectMedia, selectActor, resetGame, updateSettings, setTimerDuration, toggleTimer, pauseTimer, resumeTimer]
   );
 
   return (
