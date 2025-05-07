@@ -101,7 +101,7 @@ const GameStatus: React.FC = () => {
       {gameStatus === 'in_progress' && (
         <div className="path-section" style={{ marginTop: 16 }}>
           <div className="path-header" onClick={togglePath} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
-            <h3 style={{ margin: 0, color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.1rem' }}>Your Path</h3>
+            <h3 style={{ margin: 0, color: 'black', fontWeight: 700, fontSize: '1.1rem' }}>Your Path</h3>
             <button className="toggle-path-btn" style={{ background: 'none', border: 'none', color: 'var(--color-cinema-red)', fontSize: '1.1rem', cursor: 'pointer' }}>
               {isPathExpanded ? '▼' : '▶'}
             </button>

@@ -68,13 +68,18 @@ const HomePage: React.FC = () => {
   // TEST-ONLY: Win Game button for development
   const handleTestWin = () => {
     if (!state.targetActor) return;
-    // Simulate a path of 2 steps (can be adjusted)
-    const fakeActor = state.popularActors && state.popularActors.length > 0 ? state.popularActors[0] : state.targetActor;
+    // Use up to 5 popular actors plus the target for a 6-step path
+    const actors = state.popularActors && state.popularActors.length > 0
+      ? state.popularActors.slice(0, 5)
+      : [state.targetActor, state.targetActor, state.targetActor, state.targetActor, state.targetActor];
     const fakePath = [
-      { actor: fakeActor },
-      { actor: state.targetActor }
+      { actor: actors[0] },
+      { actor: actors[1], media: { title: "Fake Movie 1", media_type: 'movie' as const, poster_path: null, id: 1 } },
+      { actor: actors[2], media: { title: "Fake Movie 2", media_type: 'movie' as const, poster_path: null, id: 2 } },
+      { actor: actors[3], media: { title: "Fake Movie 3", media_type: 'movie' as const, poster_path: null, id: 3 } },
+      { actor: actors[4], media: { title: "Fake Movie 4", media_type: 'movie' as const, poster_path: null, id: 4 } },
+      { actor: state.targetActor, media: { title: "Final Movie", media_type: 'movie' as const, poster_path: null, id: 5 } }
     ];
-    // Set up the win state
     state.currentPath = fakePath;
     state.gameStatus = 'won';
     navigate('/end');

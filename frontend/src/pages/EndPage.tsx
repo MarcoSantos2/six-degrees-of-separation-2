@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import './styles.css';
 import ConnectednessWord from '../components/ConnectednessWord';
+import PathSummary from '../components/PathSummary';
 
 const EndPage: React.FC = () => {
   const { state, resetGame } = useGame();
@@ -37,20 +38,8 @@ const EndPage: React.FC = () => {
             : `You didn't reach ${state.targetActor.name} within ${state.maxHops} moves.`}
         </p>
         <div className="path-summary" style={{ marginTop: 20 }}>
-          <h3 style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem' }}>Your Path:</h3>
-          <ul className="path-list">
-            {state.currentPath.map((step, index) => (
-              <li key={index}>
-                {index > 0 && <div className="path-arrow">↓</div>}
-                {step.actor && (
-                  <div className="path-actor" style={{ color: 'var(--color-midnight-black)', fontWeight: 'bold' }}>{step.actor.name}</div>
-                )}
-                {step.media && (
-                  <div className="path-movie" style={{ color: 'var(--text-secondary)', fontStyle: 'italic', marginLeft: 20 }}>in "{step.media.title}"</div>
-                )}
-              </li>
-            ))}
-          </ul>
+          <h3 style={{ color: 'black', fontWeight: 700, fontSize: '1.2rem' }}>Your Path:</h3>
+          <PathSummary path={state.currentPath} />
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5em', marginTop: '2em' }}>
           <button className="btn" style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={handlePlayAgain}>Play Again</button>
