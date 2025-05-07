@@ -65,8 +65,8 @@
 }
 
 .triangle-svg {
-  width: 0.5em;
-  height: 0.5em;
+  width: clamp(2.5rem, 8vw, 5rem);
+  height: clamp(2.5rem, 8vw, 5rem);
   stroke-width: 1.8;
   stroke: currentColor;
   color: inherit;
@@ -163,4 +163,12 @@
 .sound-toggle-btn {
   opacity: 1 !important;
   visibility: visible !important;
+}
+
+.connectedness-triangle-global {
+  display: block;
+  margin: 0 auto 2.5em auto;
+  text-align: center;
+  width: 80px;
+  max-width: 100vw;
 } 

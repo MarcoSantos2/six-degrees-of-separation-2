@@ -9,6 +9,7 @@ import EndPage from './pages/EndPage';
 import Navbar from './components/Navbar';
 import { ToastProvider } from './components/ToastProvider';
 import AttributionTMDB from './components/AttributionTMDB';
+import ScrollToTop from './components/ScrollToTop';
 
 const App: React.FC = () => {
   const [isReady, setIsReady] = useState(false);
@@ -48,6 +49,7 @@ const App: React.FC = () => {
     <ToastProvider>
       <GameProvider>
         <Router>
+          <ScrollToTop />
           <Navbar />
           <div className="container">
             <Routes>

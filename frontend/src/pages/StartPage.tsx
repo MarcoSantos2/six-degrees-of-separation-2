@@ -80,6 +80,21 @@ const StartPage: React.FC = () => {
       )
     : uniqueActors;
 
+  // TEST-ONLY: Win Game button for development - TODO: NEVER SEND TO PRODUCTION
+  const handleTestWin = () => {
+    if (!state.targetActor) return;
+    // Simulate a path of 3 steps (can be adjusted)
+    const fakeActor = state.popularActors && state.popularActors.length > 0 ? state.popularActors[0] : state.targetActor;
+    const fakePath = [
+      { actor: fakeActor },
+      { actor: state.targetActor }
+    ];
+    // Set up the win state
+    state.currentPath = fakePath;
+    state.gameStatus = 'won';
+    navigate('/end');
+  };
+
   if (!state.targetActor) {
     return <div className="loading">Loading game data...</div>;
   }
@@ -158,6 +173,14 @@ const StartPage: React.FC = () => {
           />
         ))}
       </div>
+      {import.meta.env.DEV && (
+        <button
+          style={{ margin: '2em auto', display: 'block', background: '#22c55e', color: 'white', fontWeight: 700, fontSize: '1.1rem', borderRadius: 8, padding: '1em 2em', border: 'none', cursor: 'pointer' }}
+          onClick={handleTestWin}
+        >
+          Win Game (Test)
+        </button>
+      )}
     </div>
   );
 };
