@@ -78,9 +78,18 @@
 /* Game status */
 .game-status {
   margin: 20px 0;
-  padding: 20px;
   border-radius: 12px;
   background-color: #fff;
+}
+
+.game-status.panel {
+  width: 731.99px;
+  margin: 0 auto 20px auto;
+  border-radius: 12px;
+  background-color: #fff;
+  padding: 16px;
+  border: none;
+  box-shadow: none;
 }
 
 .target-actor-section {
@@ -90,6 +99,8 @@
   margin-bottom: 20px;
   padding-bottom: 20px;
   border-bottom: 1px solid #eee;
+  width: 731.99px;
+  margin: 0 auto 20px auto;
 }
 
 .target-actor-card {
@@ -164,6 +175,9 @@
 }
 
 .interactive-path {
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
   margin-top: 15px;
   overflow-x: auto;
   white-space: nowrap;
@@ -197,7 +211,21 @@
   margin-right: 5px;
 }
 
-.path-actor-card, .path-movie-card {
+.path-actor-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 150px;
+  height: 230px;
+  padding: 16px;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: #00000020 1px 4px 8px;
+  box-sizing: border-box;
+}
+
+.path-movie-card {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
@@ -224,7 +252,7 @@
 .path-actor-name, .path-movie-title {
   font-size: 0.8em;
   text-align: center;
-  max-width: 80px;
+  max-width: 100px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

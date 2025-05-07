@@ -214,5 +214,16 @@ button:hover {
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 1.5em;
   margin: 0 auto;
-  max-width: 800px;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5em;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
 } 

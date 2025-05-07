@@ -109,8 +109,8 @@ const StartPage: React.FC = () => {
 
   return (
     <div className="start-page panel" style={{ 
-      maxWidth: 900, 
-      margin: '2em auto', 
+      maxWidth: 1100, 
+      margin: '1.5em auto', 
       position: 'relative',  // Add this to create a new stacking context
       zIndex: 1  // Lower z-index for the container
     }}>
@@ -160,8 +160,6 @@ const StartPage: React.FC = () => {
         display: 'grid',
         gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
         gap: '1.5em',
-        margin: '0 auto',
-        maxWidth: 800,
         position: 'relative',  // Add this to ensure proper stacking
         zIndex: 1  // Same z-index as parent container
       }}>
