@@ -32,7 +32,7 @@ const PathSummary: React.FC<PathSummaryProps> = ({ path, arrowSvgPath = '/arrows
       {path.map((step, index) => (
         <React.Fragment key={index}>
           <div className="path-step" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <div className="path-actor-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 80, padding: 8, borderRadius: 8, background: '#fff', boxShadow: '#00000020 1px 4px 8px' }}>
+            <div className="path-actor-card">
               <img 
                 src={getActorImageUrl(step.actor)}
                 alt={step.actor.name}
