@@ -64,9 +64,10 @@ interface ActorDetails {
   popularity: number;
 }
 
+const MAX_ACTORS = 40;
+
 export const getPopularActors = async (filterByWestern: boolean = true, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Actor[]> => {
   return rateLimitRequest(async () => {
-    const MAX_ACTORS = 20;
     const allActors: Actor[] = [];
     let currentPage = Math.floor(Math.random() * 10) + 1; // Random page between 1 and 10
     
@@ -426,104 +427,57 @@ export const getCastByMedia = async (mediaId: number, mediaType: MediaType): Pro
     const mainCastResponse = await tmdbApi.get<Cast>(`/tv/${mediaId}/credits`);
     const mainCast = mainCastResponse.data.cast || [];
     console.log(`[TV] [${mediaId}] Main cast response:`, JSON.stringify(mainCastResponse.data, null, 2));
-    console.log(`[TV] [${mediaId}] Found ${mainCast.length} actors in main cast.`);
-    console.log('Main cast names:', mainCast.map(a => a.name).join(', '));
-    
-    // Then get episode-specific cast
-    console.log(`\n[TV] [${mediaId}] Fetching show details...`);
-    const showDetails = await tmdbApi.get(`/tv/${mediaId}`);
-    const seasons = showDetails.data.seasons || [];
-    console.log(`[TV] [${mediaId}] Show details:`, JSON.stringify(showDetails.data, null, 2));
-    console.log(`[TV] [${mediaId}] Found ${seasons.length} seasons.`);
-    let allEpisodes: { season_number: number, episode_number: number }[] = [];
-    
-    for (const season of seasons) {
-      if (season.season_number === 0) {
-        console.log(`[TV] [${mediaId}] Skipping season 0 (specials)`);
-        continue;
-      }
-      console.log(`\n[TV] [${mediaId}] Fetching episodes for season ${season.season_number}...`);
-      const seasonDetails = await tmdbApi.get(`/tv/${mediaId}/season/${season.season_number}`);
-      const episodes = seasonDetails.data.episodes || [];
-      console.log(`[TV] [${mediaId}] Season ${season.season_number} has ${episodes.length} episodes`);
-      allEpisodes.push(...episodes.map((ep: any) => ({ 
-        season_number: season.season_number, 
-        episode_number: ep.episode_number 
-      })));
+    console.log(`[TV] [${mediaId}] Found ${mainCast.length} actors in main cast`);
+
+    // Add main cast to unique actors map
+    const uniqueActorsMap = new Map<number, Actor>();
+    for (const actor of mainCast) {
+      uniqueActorsMap.set(actor.id, {
+        id: actor.id,
+        name: actor.name,
+        profile_path: actor.profile_path,
+        known_for_department: (actor as any).known_for_department || 'Acting',
+        popularity: (actor as any).popularity || 0
+      });
     }
-    
-    console.log(`\n[TV] [${mediaId}] Total episodes to fetch credits for: ${allEpisodes.length}`);
-    if (allEpisodes.length > 50) {
-      console.log(`[TV] [${mediaId}] This may take a while. Fetching credits for ${allEpisodes.length} episodes...`);
-    }
-    
-    const episodeCredits = await Promise.all(
-      allEpisodes.map(async ({ season_number, episode_number }) => {
+
+    // Fetch episode credits only if we haven't reached the limit
+    if (uniqueActorsMap.size < MAX_ACTORS) {
+      console.log(`[TV] [${mediaId}] Fetching episode credits...`);
+      const allEpisodes = await getAllEpisodes(mediaId);
+      console.log(`[TV] [${mediaId}] Found ${allEpisodes.length} episodes`);
+
+      let episodeIndex = 0;
+      while (uniqueActorsMap.size < MAX_ACTORS && episodeIndex < allEpisodes.length) {
+        const { season_number, episode_number } = allEpisodes[episodeIndex];
         try {
-          console.log(`[TV] [${mediaId}] Fetching credits for S${season_number}E${episode_number}...`);
           const creditsResp = await tmdbApi.get(`/tv/${mediaId}/season/${season_number}/episode/${episode_number}/credits`);
           const cast = creditsResp.data.cast || [];
           const guestStars = creditsResp.data.guest_stars || [];
-          console.log(`[TV] [${mediaId}] S${season_number}E${episode_number} has ${cast.length} cast members and ${guestStars.length} guest stars`);
-          return [...cast, ...guestStars];
+          for (const actor of [...cast, ...guestStars]) {
+            if (!uniqueActorsMap.has(actor.id)) {
+              uniqueActorsMap.set(actor.id, {
+                id: actor.id,
+                name: actor.name,
+                profile_path: actor.profile_path,
+                known_for_department: (actor as any).known_for_department || 'Acting',
+                popularity: (actor as any).popularity || 0
+              });
+              if (uniqueActorsMap.size >= MAX_ACTORS) {
+                break;
+              }
+            }
+          }
         } catch (err) {
-          console.error(`[TV] [${mediaId}] Failed to fetch credits for S${season_number}E${episode_number}:`, err);
-          return [];
+          console.error(`[TV] [${mediaId}] Error fetching episode credits for S${season_number}E${episode_number}:`, err);
         }
-      })
-    );
-    
-    // Combine main cast with episode casts and deduplicate
-    console.log(`\n[TV] [${mediaId}] Combining and deduplicating casts...`);
-    const allActors = [...mainCast, ...episodeCredits.flat()];
-    console.log(`[TV] [${mediaId}] Total actors before deduplication: ${allActors.length}`);
-    
-    // Create a map to store unique actors, preserving the first occurrence of each actor
-    const uniqueActorsMap = new Map<number, any>();
-    
-    // First add main cast members (they take precedence)
-    for (const actor of mainCast) {
-      uniqueActorsMap.set(actor.id, actor);
-    }
-    
-    // Then add episode cast members if they're not already in the map
-    for (const actor of episodeCredits.flat()) {
-      if (!uniqueActorsMap.has(actor.id)) {
-        uniqueActorsMap.set(actor.id, actor);
+        episodeIndex++;
       }
     }
-    
+
     const uniqueActors = Array.from(uniqueActorsMap.values());
-    console.log(`[TV] [${mediaId}] Found ${uniqueActors.length} unique actors after deduplication (including main cast).`);
-    console.log('Unique actor names:', uniqueActors.map(a => a.name).join(', '));
-    
-    const actorsWithImages = await Promise.all(
-      uniqueActors.map(async (actor) => {
-        try {
-          const images = await getActorImages(actor.id);
-          return {
-            id: actor.id,
-            name: actor.name,
-            profile_path: actor.profile_path,
-            known_for_department: 'Acting',
-            popularity: actor.popularity || 0
-          };
-        } catch (error) {
-          return {
-            id: actor.id,
-            name: actor.name,
-            profile_path: actor.profile_path,
-            known_for_department: 'Acting',
-            popularity: actor.popularity || 0
-          };
-        }
-      })
-    );
-    
-    console.log(`\n[TV] [${mediaId}] ===== FINISHED TV CAST FETCH =====`);
-    console.log(`[TV] [${mediaId}] Returning ${actorsWithImages.length} actors.`);
-    cache.set(cacheKey, actorsWithImages);
-    return actorsWithImages;
+    console.log(`[TV] [${mediaId}] Total unique actors: ${uniqueActors.length}`);
+    return uniqueActors;
   });
 };
 
@@ -636,4 +590,24 @@ export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL
 
     return media;
   });
-}; 
+};
+
+// Add helper function to fetch all episodes for a TV show
+async function getAllEpisodes(mediaId: number): Promise<{ season_number: number, episode_number: number }[]> {
+  const showDetails = await tmdbApi.get(`/tv/${mediaId}`);
+  const seasons = showDetails.data.seasons || [];
+  let allEpisodes: { season_number: number, episode_number: number }[] = [];
+  for (const season of seasons) {
+    if (season.season_number === 0) {
+      console.log(`[TV] [${mediaId}] Skipping season 0 (specials)`);
+      continue;
+    }
+    const seasonDetails = await tmdbApi.get(`/tv/${mediaId}/season/${season.season_number}`);
+    const episodes = seasonDetails.data.episodes || [];
+    allEpisodes.push(...episodes.map((ep: any) => ({ 
+      season_number: season.season_number, 
+      episode_number: ep.episode_number 
+    })));
+  }
+  return allEpisodes;
+} 
