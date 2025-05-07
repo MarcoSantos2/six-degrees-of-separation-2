@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { getTargetActor } from '../services/api';
 import { useGame } from '../context/GameContext';
 import './styles.css';
-import ConnectednessWord from '../components/ConnectednessWord';
 
 const HomePage: React.FC = () => {
   const [loading, setLoading] = useState(true);
@@ -66,6 +65,21 @@ const HomePage: React.FC = () => {
     navigate('/start');
   };
 
+  // TEST-ONLY: Win Game button for development
+  const handleTestWin = () => {
+    if (!state.targetActor) return;
+    // Simulate a path of 2 steps (can be adjusted)
+    const fakeActor = state.popularActors && state.popularActors.length > 0 ? state.popularActors[0] : state.targetActor;
+    const fakePath = [
+      { actor: fakeActor },
+      { actor: state.targetActor }
+    ];
+    // Set up the win state
+    state.currentPath = fakePath;
+    state.gameStatus = 'won';
+    navigate('/end');
+  };
+
   if (loading) {
     return <div className="loading">Loading...</div>;
   }
@@ -80,14 +94,14 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="home-page" style={{ maxWidth: 800, margin: '0 auto', padding: '2em', textAlign: 'center' }}>
+    <div className="home-page" style={{ maxWidth: 800, margin: '0 auto', padding: '2em', textAlign: 'center', position: 'relative', minHeight: '100vh' }}>
       <h1 style={{ 
         fontSize: '2.5rem', 
         marginBottom: '0.5em', 
         color: 'var(--text-primary)',
         fontWeight: '600'
       }}>
-        Degrees of Separation: We Are All Connected
+        6 Degrees of Separation - We Are All Connected
       </h1>
       <p style={{ 
         fontSize: '1.1rem', 
@@ -128,7 +142,15 @@ const HomePage: React.FC = () => {
       >
         Start Game
       </button>
-      <ConnectednessWord />
+
+      {import.meta.env.DEV && (
+        <button
+          style={{ position: 'fixed', bottom: 10, left: '50%', transform: 'translateX(-50%)', fontSize: '0.85rem', padding: '0.4em 1em', borderRadius: 6, background: '#22c55e', color: 'white', border: 'none', zIndex: 1000, opacity: 0.7 }}
+          onClick={handleTestWin}
+        >
+          Win Game (Test)
+        </button>
+      )}
     </div>
   );
 };

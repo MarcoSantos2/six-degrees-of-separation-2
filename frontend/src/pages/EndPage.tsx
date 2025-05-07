@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useGame } from '../context/GameContext';
 import './styles.css';
+import ConnectednessWord from '../components/ConnectednessWord';
 
 const EndPage: React.FC = () => {
   const { state, resetGame } = useGame();
@@ -10,11 +11,6 @@ const EndPage: React.FC = () => {
   const handlePlayAgain = () => {
     resetGame();
     navigate('/start');
-  };
-
-  const handleNewGame = () => {
-    resetGame();
-    navigate('/');
   };
 
   if (!state.targetActor) {
@@ -27,11 +23,13 @@ const EndPage: React.FC = () => {
   const hopsMade = totalActors > 0 ? totalActors - 1 : 0;
 
   return (
-    <div className="end-page panel" style={{ maxWidth: 900, margin: '2em auto', boxShadow: '0 4px 24px rgba(0,0,0,0.10)', position: 'relative' }}>
-      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Game Over</h1>
-      <div className="game-summary" style={{ background: 'var(--bg-panel)', borderRadius: 12, margin: '2em auto', boxShadow: '0 2px 8px rgba(0,0,0,0.08)', padding: '2em', maxWidth: 600 }}>
-        <h2 style={{ textAlign: 'center', color: state.gameStatus === 'won' ? 'var(--color-spotlight-gold)' : 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.5rem', marginBottom: '1em' }}>
-          {state.gameStatus === 'won' ? 'Congratulations! You won!' : 'Better luck next time!'}
+    <div className="end-page panel" style={{ maxWidth: 900, margin: '2em auto', position: 'relative' }}>
+      {state.gameStatus !== 'won' && (
+        <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Game Over</h1>
+      )}
+      <div className="game-summary" style={{ background: 'var(--bg-panel)', borderRadius: 12, margin: '2em auto', padding: '2em', maxWidth: 600 }}>
+        <h2 style={{ textAlign: 'center', color: state.gameStatus === 'won' ? '#111' : 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.5rem', marginBottom: '1em' }}>
+          {state.gameStatus === 'won' ? 'Congratulations!' : 'Better luck next time!'}
         </h2>
         <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
           {state.gameStatus === 'won' 
@@ -58,6 +56,7 @@ const EndPage: React.FC = () => {
           <button className="btn" style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={handlePlayAgain}>Play Again</button>
           <button className="btn" style={{ background: 'var(--button-secondary-bg)', color: 'var(--button-secondary-text)', fontWeight: 700, fontSize: '1.1rem' }} disabled>See Leaderboard (coming soon)</button>
         </div>
+        {state.gameStatus === 'won' && <ConnectednessWord />}
       </div>
     </div>
   );
