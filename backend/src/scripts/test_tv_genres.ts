@@ -1,6 +1,7 @@
 import axios from 'axios';
 import dotenv from 'dotenv';
 import { ALLOWED_TV_GENRES } from '../types';
+import { getMediaByActor } from '../services/tmdbService';
 
 dotenv.config();
 
@@ -61,4 +62,25 @@ async function checkTVShowGenres(showName: string) {
 }
 
 // Test with Jimmy Kimmel Live!
-checkTVShowGenres('Honest Trailers'); 
+// checkTVShowGenres('Honest Trailers'); 
+
+// --- Custom test for Yoon Yool's movies ---
+async function testYoonYoolMovies() {
+  const actorId = 1398022; // Yoon Yool
+  const movies = await getMediaByActor(actorId, 'MOVIES_ONLY');
+  console.log('\nMovies for Yoon Yool:');
+  movies.forEach(m => {
+    const title = m.media_type === 'movie' ? m.title : m.name;
+    const releaseDate = m.media_type === 'movie' ? m.release_date : m.first_air_date;
+    // Only print 'adult' if it exists
+    const result: any = {
+      title,
+      releaseDate,
+      media_type: m.media_type
+    };
+    if ('adult' in m) result.adult = (m as any).adult;
+    console.log(result);
+  });
+}
+
+testYoonYoolMovies(); 

@@ -52,6 +52,13 @@ const MediaSelectionPage: React.FC = () => {
   // Deduplicate media by id
   const uniqueMedia = Array.from(new Map(allMedia.map(media => [media.id, media])).values());
 
+  // Sort by year descending (most recent first)
+  uniqueMedia.sort((a, b) => {
+    const dateA = new Date(a.release_date || a.first_air_date || '1900-01-01').getTime();
+    const dateB = new Date(b.release_date || b.first_air_date || '1900-01-01').getTime();
+    return dateB - dateA;
+  });
+
   const filteredMedia = searchTerm
     ? uniqueMedia.filter(media => 
         (media.title || media.name || '').toLowerCase().includes(searchTerm.toLowerCase())
