@@ -100,6 +100,11 @@ const gameReducer = (state: GameState, action: Action): GameState => {
           ...state,
           currentPath: updatedPath,
           gameStatus: 'won',
+          timer: {
+            ...state.timer,
+            isRunning: false,
+            isPaused: false
+          }
         };
       }
 
