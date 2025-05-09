@@ -62,33 +62,46 @@ const GameStatus: React.FC = () => {
       <div className="target-actor-section" style={{ 
         display: 'flex', 
         alignItems: 'center', 
-        gap: '1.5em',
         position: 'sticky',
         top: '1em',
         backgroundColor: 'var(--bg-panel)',
-        zIndex: 3,
-        padding: '1em',
+        zIndex: 3,    
         borderRadius: '12px',
         boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
         marginBottom: '1.5em',
-        width: '731.99px',
-        margin: '0 auto'
+        width: '100%',
+        maxWidth: '731.99px',
+        margin: '0 auto',
+        boxSizing: 'border-box',
+        flexWrap: 'wrap'
       }}>
-        <div className="target-actor-card" style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
+        <div className="target-actor-card" style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '1em',
+          flex: 1,
+          minWidth: 0
+        }}>
           <img 
             src={getActorImageUrl(targetActor)}
             alt={targetActor.name}
             className="target-actor-image"
             style={{ width: 60, height: 90, borderRadius: 8, objectFit: 'cover', background: '#eee', boxShadow: '0 1px 4px rgba(0,0,0,0.08)' }}
           />
-          <div className="target-actor-info">
-            <h3 style={{ margin: 0, color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem', letterSpacing: '0.04em' }}>Target Actor</h3>
-            <div className="highlight" style={{ color: 'var(--color-midnight-black)', fontWeight: 700, fontSize: '1.1rem' }}>{targetActor.name}</div>
+          <div className="target-actor-info" style={{ minWidth: 0 }}>
+            <h3 style={{ margin: 0, color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.2rem', letterSpacing: '0.04em', whiteSpace: 'normal', wordBreak: 'break-word' }}>Target Actor</h3>
+            <div className="highlight" style={{ color: 'var(--color-midnight-black)', fontWeight: 700, fontSize: '1.1rem', whiteSpace: 'normal', wordBreak: 'break-word' }}>{targetActor.name}</div>
           </div>
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '1em' }}>
+        <div style={{ 
+          marginLeft: 'auto', 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: '1em',
+          flexWrap: 'wrap'
+        }}>
           {state.settings.maxHopsEnabled && (
-            <div className="moves-remaining" style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.1rem' }}>
+            <div className="moves-remaining" style={{ color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.1rem', whiteSpace: 'nowrap' }}>
               <span className="highlight">{hopsRemaining}</span> moves remaining
             </div>
           )}
@@ -97,9 +110,9 @@ const GameStatus: React.FC = () => {
       </div>
 
       <div>
-        <div className="game-status panel" style={{ padding: '1.5em', borderRadius: 12 }}>
+        <div className="game-status panel" style={{ padding: '1.5em 0', borderRadius: 12, width: '100%', maxWidth: '731.99px', margin: '0 auto', boxSizing: 'border-box' }}>
       {gameStatus === 'in_progress' && (
-        <div style={{ width: '731.99px', margin: '0 auto' }}>
+        <div style={{ width: '100%', margin: '0 auto' }}>
         <div className="path-section" style={{ marginTop: 16 }}>
           <div className="path-header" onClick={togglePath} style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', gap: 8 }}>
             <h3 style={{ margin: 0, color: 'black', fontWeight: 700, fontSize: '1.1rem' }}>Your Path</h3>
@@ -108,7 +121,7 @@ const GameStatus: React.FC = () => {
             </button>
           </div>
           {isPathExpanded && (
-            <div className="interactive-path" style={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', whiteSpace: 'nowrap', marginTop: 12 }}>
+            <div className="interactive-path" style={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', whiteSpace: 'nowrap', marginTop: 12, width: '100%', boxSizing: 'border-box' }}>
               {currentPath.map((step, index) => (
                 <div key={index} className="path-step" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div className="path-actor-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 100, padding: 10, borderRadius: 8, background: '#fff', boxShadow: '#00000050 1px 4px 8px' }}>
@@ -118,9 +131,9 @@ const GameStatus: React.FC = () => {
                       className="path-actor-image"
                       style={{ width: 56, height: 84, borderRadius: 8, objectFit: 'cover', background: '#eee' }}
                     />
-                    <div className="path-actor-name" style={{ color: 'var(--color-midnight-black)', fontWeight: 600, fontSize: '1.05rem', textAlign: 'center', maxWidth: 90, whiteSpace: 'normal', wordBreak: 'break-word' }}>{step.actor.name}</div>
+                    <div className="path-actor-name" style={{ color: 'var(--color-midnight-black)', fontWeight: 600, fontSize: '1.05rem', textAlign: 'center', maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word' }}>{step.actor.name}</div>
                     {step.media && (
-                      <div className="path-movie-title" style={{ color: '#666666', fontWeight: 500, fontSize: '0.6875rem', textAlign: 'center', maxWidth: 90, whiteSpace: 'normal', wordBreak: 'break-word', marginTop: 2 }}>
+                      <div className="path-movie-title" style={{ color: '#666666', fontWeight: 500, fontSize: '0.6875rem', textAlign: 'center', maxWidth: '100%', whiteSpace: 'normal', wordBreak: 'break-word', marginTop: 2 }}>
                         {step.media.media_type === 'movie' ? step.media.title : step.media.name}
                       </div>
                     )}

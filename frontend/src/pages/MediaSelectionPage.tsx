@@ -66,20 +66,21 @@ const MediaSelectionPage: React.FC = () => {
     return <div className="error">{error}</div>;
   }
 
-  const mediaTypeLabel = state.settings.mediaFilter === 'MOVIES_ONLY' ? 'Movies' :
-    state.settings.mediaFilter === 'TV_ONLY' ? 'TV Shows' : 'Movies & TV Shows';
+  const mediaTypeLabel = state.settings.mediaFilter === 'MOVIES_ONLY' ? 'Movie' :
+    state.settings.mediaFilter === 'TV_ONLY' ? 'TV Show' : 'Movie or TV Show';
 
   return (
     <div className="media-selection-page panel" style={{ 
       maxWidth: 1280, 
       margin: '0 auto',
-      padding: '8px 32px',
+      padding: '8px 0',
       minHeight: 'calc(100vh - 124.59px)'
     }}>
       <GameStatus />
       <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center' }}>Select a {mediaTypeLabel}</h1>
       <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
-        {mediaTypeLabel} starring {currentActor?.name}
+        {state.settings.mediaFilter === 'MOVIES_ONLY' ? 'Movies' :
+         state.settings.mediaFilter === 'TV_ONLY' ? 'TV Shows' : 'Movies or TV Shows'} starring {currentActor?.name}
       </h2>
       <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
         <input
@@ -106,13 +107,7 @@ const MediaSelectionPage: React.FC = () => {
       {filteredMedia.length === 0 ? (
         <div className="no-results" style={{ textAlign: 'center', color: 'var(--text-secondary)', fontSize: '1.1rem' }}>No {mediaTypeLabel.toLowerCase()} found matching your search.</div>
       ) : (
-        <div className="grid-container" style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: '1.5em',
-          margin: '0 auto',
-          maxWidth: '100%'
-        }}>
+        <div className="grid-container">
           {filteredMedia.map(media => (
             <MediaCard
               key={media.id}
