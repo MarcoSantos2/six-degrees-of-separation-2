@@ -106,8 +106,16 @@ const HomePage: React.FC = () => {
         color: 'var(--text-primary)',
         fontWeight: '600'
       }}>
-        6 Degrees of Separation - We Are All Connected
+        6 Degrees of Separation
       </h1>
+      <h2 style={{ 
+        fontSize: '1.5rem', 
+        marginBottom: '0.5em', 
+        color: 'var(--text-primary)',
+        fontWeight: '500'
+      }}>
+        We Are All Connected
+      </h2>
       <p style={{ 
         fontSize: '1.1rem', 
         marginBottom: '2.5em', 

@@ -28,7 +28,17 @@ const getMediaPosterUrl = (media?: Media) => {
 
 const PathSummary: React.FC<PathSummaryProps> = ({ path, arrowSvgPath = '/arrows/stairUp.svg' }) => {
   return (
-    <div className="interactive-path" style={{ display: 'flex', flexDirection: 'row', overflowX: 'auto', whiteSpace: 'nowrap', marginTop: 12, justifyContent: 'center' }}>
+    <div className="interactive-path" style={{ 
+      display: 'flex', 
+      flexDirection: 'row', 
+      overflowX: 'auto', 
+      whiteSpace: 'nowrap', 
+      marginTop: 12, 
+      justifyContent: 'flex-start',
+      padding: '0 16px',
+      width: '100%',
+      boxSizing: 'border-box'
+    }}>
       {path.map((step, index) => (
         <React.Fragment key={index}>
           <div className="path-step" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
