@@ -77,7 +77,7 @@ const MediaSelectionPage: React.FC = () => {
       minHeight: 'calc(100vh - 124.59px)'
     }}>
       <GameStatus />
-      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Select a {mediaTypeLabel}</h1>
+      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center' }}>Select a {mediaTypeLabel}</h1>
       <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
         {mediaTypeLabel} starring {currentActor?.name}
       </h2>
