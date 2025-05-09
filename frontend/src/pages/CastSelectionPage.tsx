@@ -45,9 +45,26 @@ const CastSelectionPage: React.FC = () => {
     ? cast.filter(actor => actor.name.toLowerCase().includes(searchTerm.toLowerCase()))
     : cast;
 
+  const currentPath = state.currentPath[state.currentPath.length - 1];
+  if (!currentPath?.media) {
+    navigate('/movies');
+    return;
+  }
+
+  const currentMedia = currentPath.media;
+
   return (
-    <div className="cast-selection-page">
+    <div className="cast-selection-page panel" style={{ 
+      maxWidth: 1280, 
+      margin: '0 auto',
+      padding: '8px 0',
+      minHeight: 'calc(100vh - 124.59px)'
+    }}>
       <GameStatus />
+      <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center' }}>Select an Actor</h1>
+      <h2 style={{ textAlign: 'center', color: 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.3rem', marginBottom: '2em' }}>
+        Cast of {currentMedia.media_type === 'movie' ? currentMedia.title : currentMedia.name}
+      </h2>
       <div className="search-container" style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5em' }}>
         <input
           type="text"
