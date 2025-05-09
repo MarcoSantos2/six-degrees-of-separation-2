@@ -106,16 +106,28 @@
   flex-wrap: wrap;
 }
 
+.target-actor-info h3,
+.target-actor-info .highlight {
+  white-space: nowrap;
+  word-break: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 @media (max-width: 640px) {
   .target-actor-section {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .target-actor-section > div:last-child {
-    margin-left: 0;
-    width: 100%;
+    flex-direction: row;
+    align-items: center;
     justify-content: flex-start;
+    gap: 1em;
+  }
+  .target-actor-info h3,
+  .target-actor-info .highlight {
+    font-size: 1rem;
+    white-space: nowrap;
+    word-break: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
