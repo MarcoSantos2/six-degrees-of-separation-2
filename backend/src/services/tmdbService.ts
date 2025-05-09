@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import { Actor, Cast, MovieCredits, Movie, Media, MediaType, TVCredits, TVShow, MediaFilter, ALLOWED_TV_GENRES, EXCLUDED_TV_GENRES, EXCLUDED_TV_SHOW_IDS } from '../types';
 import { rateLimitRequest } from './rateLimiter';
 import { cache } from './cache';
+import { BLOCKED_ACTOR_IDS, BLOCKED_MOVIE_IDS } from '../types/blockedContent';
 
 dotenv.config();
 
@@ -243,9 +244,13 @@ interface TVCreditsResponse {
 }
 
 export const getMediaByActor = async (actorId: number, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Media[]> => {
+  // Block all media for blocked actors
+  if (BLOCKED_ACTOR_IDS.includes(actorId)) {
+    return [];
+  }
   return rateLimitRequest(async () => {
-    // Check cache first
     const cacheKey = `media_${actorId}_${mediaFilter}`;
+    // Check cache first
     const cachedData = cache.get<Media[]>(cacheKey);
     if (cachedData) {
       console.log('Returning cached media for actor:', actorId);
@@ -257,13 +262,15 @@ export const getMediaByActor = async (actorId: number, mediaFilter: MediaFilter 
     // Fetch movies if needed
     if (mediaFilter === 'ALL_MEDIA' || mediaFilter === 'MOVIES_ONLY') {
       const movieResponse = await tmdbApi.get<MovieCreditsResponse>(`/person/${actorId}/movie_credits`);
-      const movies = movieResponse.data.cast.map((movie) => ({
-        id: movie.id,
-        title: movie.title,
-        release_date: movie.release_date,
-        poster_path: movie.poster_path,
-        media_type: 'movie' as const,
-      }));
+      const movies = movieResponse.data.cast
+        .filter(movie => !BLOCKED_MOVIE_IDS.includes(movie.id))
+        .map((movie) => ({
+          id: movie.id,
+          title: movie.title,
+          release_date: movie.release_date,
+          poster_path: movie.poster_path,
+          media_type: 'movie' as const,
+        }));
       media.push(...movies);
     }
 
@@ -274,6 +281,7 @@ export const getMediaByActor = async (actorId: number, mediaFilter: MediaFilter 
       console.log(`Found ${tvResponse.data.cast.length} TV shows in credits`);
       
       const tvShows = tvResponse.data.cast
+        .filter(show => !BLOCKED_MOVIE_IDS.includes(show.id))
         .filter(show => {
           console.log(`\nChecking TV show: ${show.name}`);
           // Check for excluded show ID first
@@ -501,6 +509,7 @@ interface TVSearchResponse {
 
 export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL_MEDIA'): Promise<Media[]> => {
   return rateLimitRequest(async () => {
+    const cacheKey = `search_${query}_${mediaFilter}`;
     const media: Media[] = [];
 
     // Search movies if needed
@@ -576,7 +585,7 @@ export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL
           }
           // Then check for allowed genres
           const hasAllowedGenre = show.genre_ids?.some(genreId => ALLOWED_TV_GENRES.includes(genreId)) === true;
-          console.log(`\nChecking ${show.name}:`);
+          console.log(`\nFinal check for ${show.name}:`);
           console.log('Genre IDs:', show.genre_ids);
           console.log('Has allowed genre:', hasAllowedGenre);
           return hasAllowedGenre;
@@ -588,26 +597,24 @@ export const searchMedia = async (query: string, mediaFilter: MediaFilter = 'ALL
       media.push(...filteredShows);
     }
 
+    cache.set(cacheKey, media);
     return media;
   });
 };
 
-// Add helper function to fetch all episodes for a TV show
+// Helper function to fetch all episodes for a TV show
 async function getAllEpisodes(mediaId: number): Promise<{ season_number: number, episode_number: number }[]> {
   const showDetails = await tmdbApi.get(`/tv/${mediaId}`);
   const seasons = showDetails.data.seasons || [];
   let allEpisodes: { season_number: number, episode_number: number }[] = [];
   for (const season of seasons) {
-    if (season.season_number === 0) {
-      console.log(`[TV] [${mediaId}] Skipping season 0 (specials)`);
-      continue;
-    }
+    if (season.season_number === 0) continue; // skip specials
     const seasonDetails = await tmdbApi.get(`/tv/${mediaId}/season/${season.season_number}`);
     const episodes = seasonDetails.data.episodes || [];
-    allEpisodes.push(...episodes.map((ep: any) => ({ 
-      season_number: season.season_number, 
-      episode_number: ep.episode_number 
+    allEpisodes.push(...episodes.map((ep: any) => ({
+      season_number: season.season_number,
+      episode_number: ep.episode_number
     })));
   }
   return allEpisodes;
-} 
+}
