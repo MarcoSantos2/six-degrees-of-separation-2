@@ -99,7 +99,12 @@ const HomePage: React.FC = () => {
   }
 
   return (
-    <div className="home-page" style={{ maxWidth: 800, margin: '0 auto', padding: '2em', textAlign: 'center', position: 'relative', minHeight: '100vh' }}>
+    <div className="home-page" style={{ 
+      maxWidth: 800, 
+      margin: '0 auto', 
+      textAlign: 'center', 
+      position: 'relative'
+    }}>
       <h1 style={{ 
         fontSize: '2.5rem', 
         marginBottom: '0.5em', 
@@ -150,7 +155,9 @@ const HomePage: React.FC = () => {
           border: 'none',
           cursor: 'pointer',
           transition: 'transform 0.2s',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          width: '100%',
+          maxWidth: '300px'
         }}
       >
         Start Game
@@ -158,7 +165,20 @@ const HomePage: React.FC = () => {
 
       {import.meta.env.DEV && (
         <button
-          style={{ position: 'fixed', bottom: 10, left: '50%', transform: 'translateX(-50%)', fontSize: '0.85rem', padding: '0.4em 1em', borderRadius: 6, background: '#22c55e', color: 'white', border: 'none', zIndex: 1000, opacity: 0.7 }}
+          style={{ 
+            position: 'fixed', 
+            bottom: 10, 
+            left: '50%', 
+            transform: 'translateX(-50%)', 
+            fontSize: '0.85rem', 
+            padding: '0.4em 1em', 
+            borderRadius: 6, 
+            background: '#22c55e', 
+            color: 'white', 
+            border: 'none', 
+            zIndex: 1000, 
+            opacity: 0.7 
+          }}
           onClick={handleTestWin}
         >
           Win Game (Test)

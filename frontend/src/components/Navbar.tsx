@@ -22,7 +22,7 @@ const Navbar: React.FC = () => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'space-between',
-      padding: '0.5em 2em',
+      padding: '0.5em 0em',
       background: 'var(--bg-panel)',
       borderBottom: '1px solid var(--border)',
       zIndex: 1000
@@ -32,7 +32,17 @@ const Navbar: React.FC = () => {
           onClick={() => navigate('/')} 
           style={{ cursor: 'pointer' }}
         >
-          <img src={LOGO_PATH} alt="App Logo" style={{ height: 100, width: 100, borderRadius: 8, background: 'var(--color-white-frame)' }} />
+          <img 
+            src={LOGO_PATH} 
+            alt="App Logo" 
+            style={{ 
+              height: 'clamp(80px, 8vw, 100px)', 
+              width: 'clamp(80px, 8vw, 100px)', 
+              borderRadius: 8, 
+              background: 'var(--color-white-frame)',
+              objectFit: 'cover'
+            }} 
+          />
         </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '1em' }}>
