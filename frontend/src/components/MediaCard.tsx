@@ -29,7 +29,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, onClick }) => {
       borderRadius: 12,
       boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
       border: '1px solid var(--border)',
-      padding: '1em',
+      padding: '8px',
       transition: 'box-shadow 0.2s, transform 0.2s',
       minHeight: 280,
       width: '100%',
@@ -59,7 +59,7 @@ const MediaCard: React.FC<MediaCardProps> = ({ media, onClick }) => {
       <div className="card-title" title={title} style={{
         fontFamily: 'var(--font-heading)',
         fontWeight: 700,
-        fontSize: '1.1rem',
+        fontSize: '1rem',
         color: 'var(--color-midnight-black)',
         textAlign: 'center',
         marginTop: 4,

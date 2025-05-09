@@ -87,7 +87,7 @@
   margin: 0 auto 20px auto;
   border-radius: 12px;
   background-color: #fff;
-  padding: 16px;
+  padding: 16px 0;
   border: none;
   box-shadow: none;
 }
@@ -97,10 +97,26 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 20px;
-  padding-bottom: 20px;
+  padding: 0;
   border-bottom: 1px solid #eee;
-  width: 731.99px;
+  width: 100%;
+  max-width: 731.99px;
   margin: 0 auto 20px auto;
+  box-sizing: border-box;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .target-actor-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .target-actor-section > div:last-child {
+    margin-left: 0;
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
 
 .target-actor-card {
@@ -109,8 +125,9 @@
   gap: 15px;
   padding: 10px;
   border-radius: 8px;
-  background-color: #f8f9fa;
   transition: transform 0.2s;
+  flex: 1;
+  min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 .target-actor-card:hover {
@@ -128,12 +145,15 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0; /* Allow text to wrap */
 }
 
 .target-actor-info h3 {
   margin: 0;
   color: #666;
   font-size: 0.9em;
+  white-space: normal; /* Allow text to wrap */
+  word-break: break-word;
 }
 
 .moves-remaining {
@@ -141,6 +161,7 @@
   background-color: #e3f2fd;
   border-radius: 20px;
   font-size: 0.9em;
+  white-space: nowrap;
 }
 
 .path-section {
@@ -176,15 +197,15 @@
 
 .interactive-path {
   max-width: 100%;
-  padding-left: 0;
-  padding-right: 0;
+  padding: 10px 0;
   margin-top: 15px;
   overflow-x: auto;
   white-space: nowrap;
-  padding: 10px 0;
   -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
   scrollbar-color: #cbd5e0 #f8f9fa;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .interactive-path::-webkit-scrollbar {
@@ -216,13 +237,21 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  width: 150px;
-  height: 230px;
-  padding: 16px;
+  width: 120px; /* Smaller width for mobile */
+  height: 200px; /* Smaller height for mobile */
+  padding: 12px;
   border-radius: 8px;
   background: #fff;
   box-shadow: #00000020 1px 4px 8px;
   box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .path-actor-card {
+    width: 150px; /* Larger width for desktop */
+    height: 230px; /* Larger height for desktop */
+    padding: 16px;
+  }
 }
 
 .path-movie-card {
@@ -230,7 +259,7 @@
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  min-width: 80px;
+  min-width: 60px; /* Smaller width for mobile */
   padding: 8px;
   border-radius: 6px;
   background-color: #fff;
@@ -238,8 +267,10 @@
   transition: transform 0.2s;
 }
 
-.path-actor-card:hover, .path-movie-card:hover {
-  transform: translateY(-2px);
+@media (min-width: 640px) {
+  .path-movie-card {
+    min-width: 80px; /* Larger width for desktop */
+  }
 }
 
 .path-actor-image, .path-movie-image {
@@ -249,13 +280,27 @@
   object-fit: cover;
 }
 
+@media (min-width: 640px) {
+  .path-actor-image, .path-movie-image {
+    width: 50px;
+    height: 50px;
+  }
+}
+
 .path-actor-name, .path-movie-title {
   font-size: 0.8em;
   text-align: center;
-  max-width: 100px;
-  white-space: nowrap;
+  max-width: 100%;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
+  word-break: break-word;
+}
+
+@media (min-width: 640px) {
+  .path-actor-name, .path-movie-title {
+    max-width: 100px;
+  }
 }
 
 .path-arrow {
@@ -294,7 +339,9 @@
 .grid-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr); /* Default to 2 columns for mobile */
-  gap: 1em;
+  gap: 1.5em;
+  margin: 0 auto;
+  max-width: 100%;
   justify-items: center;
 }
 
@@ -307,6 +354,20 @@
 @media (min-width: 1024px) {
   .grid-container {
     grid-template-columns: repeat(5, 1fr); /* 5 columns for desktop */
+  }
+}
+
+/* Update media card styles for better responsiveness */
+.media-card {
+  width: 100%;
+  max-width: 180px;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .media-card {
+    max-width: 140px;
   }
 }
 
