@@ -7,7 +7,6 @@ import { Actor } from '../types';
 import './styles.css';
 
 const StartPage: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { startGame, state, setPopularActors } = useGame();
@@ -74,12 +73,6 @@ const StartPage: React.FC = () => {
     ? Array.from(new Map(state.popularActors.map(actor => [actor.id, actor])).values())
     : [];
 
-  const filteredActors = searchTerm
-    ? uniqueActors.filter(actor => 
-        actor.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : uniqueActors;
-
   // TEST-ONLY: Win Game button for development - TODO: NEVER SEND TO PRODUCTION
   const handleTestWin = () => {
     if (!state.targetActor) return;
@@ -111,59 +104,40 @@ const StartPage: React.FC = () => {
     <div className="start-page panel" style={{ 
       maxWidth: 1100, 
       margin: '1.5em auto', 
-      position: 'relative',  // Add this to create a new stacking context
-      zIndex: 1  // Lower z-index for the container
+      position: 'relative',
+      zIndex: 1,
+      padding: '0 0 20px 0'
     }}>
-      <h1 style={{ fontSize: '2.5rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Choose a Starting Actor</h1>
+      <h1 style={{ marginBottom: '0.5em', textAlign: 'center' }}>Choose a Starting Actor</h1>
       <p style={{ textAlign: 'center', color: 'var(--text-main)', fontSize: '1.1rem', marginBottom: '2em' }}>
         Connect actors to the target by hopping through movies and co-stars. How few steps can you do it in?
       </p>
-      <div className="search-container" style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        marginBottom: '1.5em',
-        position: 'relative',  // Add this to ensure proper stacking
-        zIndex: 2  // Higher z-index than the grid container
-      }}>
-        <input
-          type="text"
-          placeholder="Filter actors..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-          style={{
-            padding: '0.7em 1.2em',
-            borderRadius: 8,
-            border: '1px solid var(--border)',
-            fontSize: '1.1rem',
-            width: 320,
-            maxWidth: '90%',
-            background: 'var(--bg-panel)',
-            color: 'var(--text-main)',
-            outline: 'none',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.04)'
-          }}
-          aria-label="Filter actors"
-        />
-      </div>
       <div className="choice-buttons" style={{ display: 'flex', justifyContent: 'center', marginBottom: '2em' }}>
         <button 
           className="btn"
-          style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem', marginRight: 12 }}
+          style={{ background: 'var(--button-primary-bg)', color: 'var(--button-primary-text)', fontWeight: 700, fontSize: '1.1rem' }}
           onClick={handleRandomStart}
         >
           Choose Random Actor
         </button>
-        <button className="btn" style={{ background: 'var(--button-secondary-bg)', color: 'var(--button-secondary-text)', fontWeight: 700, fontSize: '1.1rem' }} onClick={() => navigate('/')}>Back to Home</button>
       </div>
-      <div className="grid-container" style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-        gap: '1.5em',
-        position: 'relative',  // Add this to ensure proper stacking
-        zIndex: 1  // Same z-index as parent container
+      <div style={{ 
+        textAlign: 'center', 
+        marginBottom: '2em',
+        color: 'var(--text-main)',
+        fontSize: '1.1rem'
       }}>
-        {filteredActors.map(actor => (
+        Or
+        <div style={{ 
+          marginTop: '1.5em',
+          fontSize: '1.1rem',
+          color: 'var(--text-main)'
+        }}>
+          Select an actor from the list below
+        </div>
+      </div>
+      <div className="grid-container">
+        {uniqueActors.map(actor => (
           <ActorCard
             key={actor.id}
             actor={actor}

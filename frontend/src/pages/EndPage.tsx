@@ -26,7 +26,7 @@ const EndPage: React.FC = () => {
   return (
     <div className="end-page panel" style={{ maxWidth: 900, margin: '2em auto', position: 'relative' }}>
       {state.gameStatus !== 'won' && (
-        <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center', letterSpacing: '0.08em' }}>Game Over</h1>
+        <h1 style={{ fontSize: '2.2rem', marginBottom: '0.5em', textAlign: 'center' }}>Game Over</h1>
       )}
       <div className="game-summary" style={{ background: 'var(--bg-panel)', borderRadius: 12, margin: '2em auto', padding: '2em', maxWidth: 600 }}>
         <h2 style={{ textAlign: 'center', color: state.gameStatus === 'won' ? '#111' : 'var(--color-cinema-red)', fontWeight: 700, fontSize: '1.5rem', marginBottom: '1em' }}>

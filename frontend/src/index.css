@@ -89,7 +89,7 @@ button:hover, .btn:hover {
 .card, .panel {
   background: var(--bg-panel);
   border-radius: 12px;
-  padding: 16px !important;
+  padding: 16px 0;
   margin-bottom: 1.5em;
   color: var(--color-midnight-black);
 }
