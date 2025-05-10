@@ -24,6 +24,28 @@ const initialState: GameState = {
   popularActors: []
 };
 
+// Load initial state from localStorage if available
+const loadState = (): GameState => {
+  try {
+    const savedState = localStorage.getItem('gameState');
+    if (savedState) {
+      const parsedState = JSON.parse(savedState);
+      // Ensure timer is not running when restored
+      return {
+        ...parsedState,
+        timer: {
+          ...parsedState.timer,
+          isRunning: false,
+          isPaused: false
+        }
+      };
+    }
+  } catch (error) {
+    console.error('Error loading state from localStorage:', error);
+  }
+  return initialState;
+};
+
 // Action types
 type Action =
   | { type: 'SET_TARGET_ACTOR'; payload: Actor }
@@ -44,22 +66,25 @@ type Action =
 
 // Reducer function
 const gameReducer = (state: GameState, action: Action): GameState => {
+  let newState: GameState;
+  
   switch (action.type) {
     case 'SET_TARGET_ACTOR':
       // Prevent setting the same actor again
       if (state.targetActor?.id === action.payload.id) {
         return state;
       }
-      return {
+      newState = {
         ...state,
         targetActor: action.payload,
       };
+      break;
 
     case 'START_GAME': {
       const isImmediateLose =
         (state.settings.maxHops === 1) &&
         (action.payload.startingActor.id !== action.payload.targetActor.id);
-      return {
+      newState = {
         ...state,
         targetActor: action.payload.targetActor,
         currentPath: [{ actor: action.payload.startingActor }],
@@ -70,6 +95,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
           isPaused: false
         }
       };
+      break;
     }
 
     case 'SELECT_MEDIA':
@@ -77,13 +103,14 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       if (state.gameStatus === 'lost' || state.gameStatus === 'won') {
         return state;
       }
-      return {
+      newState = {
         ...state,
         currentPath: [
           ...state.currentPath.slice(0, -1),
           { ...state.currentPath[state.currentPath.length - 1], media: action.payload },
         ],
       };
+      break;
 
     case 'SELECT_ACTOR':
       // Prevent selection if game is already over
@@ -96,7 +123,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       
       // Check win condition
       if (action.payload.id === state.targetActor?.id) {
-        return {
+        newState = {
           ...state,
           currentPath: updatedPath,
           gameStatus: 'won',
@@ -113,7 +140,7 @@ const gameReducer = (state: GameState, action: Action): GameState => {
 
       // Check lose condition (max moves reached) - now always enforced
       if (totalActors >= state.settings.maxHops) {
-        return {
+        newState = {
           ...state,
           currentPath: updatedPath,
           gameStatus: 'lost',
@@ -121,43 +148,48 @@ const gameReducer = (state: GameState, action: Action): GameState => {
       }
 
       // Continue game
-      return {
+      newState = {
         ...state,
         currentPath: updatedPath,
       };
+      break;
 
     case 'RESET_GAME':
-      return {
+      newState = {
         ...initialState,
         settings: state.settings // Preserve settings
       };
+      break;
 
     case 'UPDATE_SETTINGS':
-      return {
+      newState = {
         ...state,
         settings: action.payload
       };
+      break;
 
     case 'SET_TIMER_DURATION':
-      return {
+      newState = {
         ...state,
         settings: {
           ...state.settings,
           timerDuration: action.payload
         }
       };
+      break;
 
     case 'TOGGLE_TIMER':
-      return {
+      newState = {
         ...state,
         settings: {
           ...state.settings,
           timerEnabled: !state.settings.timerEnabled
         }
       };
+      break;
 
     case 'UPDATE_TIMER':
-      return {
+      newState = {
         ...state,
         timer: {
           ...state.timer,
@@ -165,9 +197,10 @@ const gameReducer = (state: GameState, action: Action): GameState => {
           isRunning: action.payload > 0
         }
       };
+      break;
 
     case 'STOP_TIMER':
-      return {
+      newState = {
         ...state,
         timer: {
           remainingTime: 0,
@@ -175,9 +208,10 @@ const gameReducer = (state: GameState, action: Action): GameState => {
           isPaused: false
         }
       };
+      break;
 
     case 'START_TIMER':
-      return {
+      newState = {
         ...state,
         timer: {
           remainingTime: state.settings.timerEnabled ? state.settings.timerDuration * 60 : 0,
@@ -185,40 +219,54 @@ const gameReducer = (state: GameState, action: Action): GameState => {
           isPaused: false
         }
       };
+      break;
 
     case 'TIME_UP':
-      return {
+      newState = {
         ...state,
         gameStatus: 'lost'
       };
+      break;
 
     case 'PAUSE_TIMER':
-      return {
+      newState = {
         ...state,
         timer: {
           ...state.timer,
           isPaused: true
         }
       };
+      break;
 
     case 'RESUME_TIMER':
-      return {
+      newState = {
         ...state,
         timer: {
           ...state.timer,
           isPaused: false
         }
       };
+      break;
 
     case 'SET_POPULAR_ACTORS':
-      return {
+      newState = {
         ...state,
         popularActors: action.payload,
       };
+      break;
 
     default:
-      return state;
+      newState = state;
   }
+
+  // Save state to localStorage after each action
+  try {
+    localStorage.setItem('gameState', JSON.stringify(newState));
+  } catch (error) {
+    console.error('Error saving state to localStorage:', error);
+  }
+
+  return newState;
 };
 
 // Create context
@@ -242,7 +290,7 @@ const GameContext = createContext<GameContextProps | undefined>(undefined);
 
 // Provider component
 export const GameProvider = ({ children }: { children: ReactNode }) => {
-  const [state, dispatch] = useReducer(gameReducer, initialState);
+  const [state, dispatch] = useReducer(gameReducer, loadState());
 
   // Memoize action creators to prevent unnecessary rerenders
   const setTargetActor = useCallback((actor: Actor) => {
